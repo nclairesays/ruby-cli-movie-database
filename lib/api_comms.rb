@@ -13,7 +13,8 @@ def get_movie_from_api(user_input)
   response_string = RestClient.get(url)
   response = JSON.parse(response_string)
 
-  Movie.new(title: response["Title"],
+  # creates and saves a database entry
+  Movie.create(title: response["Title"],
             year: response["Year"],
             rated: response["Rated"],
             director: response["Director"],
@@ -24,4 +25,3 @@ def get_movie_from_api(user_input)
   # Actor.new() need to split and iterate and split
 
 end
-
