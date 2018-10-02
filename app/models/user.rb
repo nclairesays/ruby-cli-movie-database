@@ -5,46 +5,27 @@ class User < ActiveRecord::Base
   has_many :searches
   has_many :movies, through: :searches
 
+  PROMPT = TTY::Prompt.new
+
   def self.signup(username)
+    pass = hash(PROMPT.mask("Please Enter a Password:", required: true))
     puts
-    puts "Please Enter A Password:"
-    pass = hash(gets.chomp) #some hash, also blur out with gems
-    puts
-    puts "Please Enter Your Password Again:"
-    if hash(gets.chomp) == pass #need to figure out pass perhaps .to_s
-      puts
-      puts "Please Input Your Postcode:" #some sort of postcode validation
+    if hash(PROMPT.mask("Please Enter Your Password Again:", required: true)) == pass
       postcode = validate_postcode
-      puts
-      puts "Please Input Your Age:"
       age = validate_age
-      puts
-      puts "Please Input Your Gender: M / F / O"
       gender = validate_gender
-      # binding.pry
       user = User.create(username: username, password: pass, location: postcode, age: age, gender: gender)
-      # puts username
-      # puts pass
-      # puts postcode
-      # puts age
-      # puts gender
       puts
       puts "==== Thank you for signing up #{user.username}! ===="
       puts
-      # puts "Thank you for setting up your account #{user.username}"
       CLI.mainmenu(username)
     else
       puts "The Passwords You Have Entered Did not Match."
-      puts
-      puts "1: Sign Up"
-      puts "2: Login"
-      puts
+      CLI.signin_page(username)
     end
   end
 
   def self.login(username)
-    puts "Please Enter Your Password:"
-    puts
     validate(username)
   end
 
@@ -52,14 +33,14 @@ class User < ActiveRecord::Base
   def self.validate(username)
     i = 0
     loop do
-      pass = gets.chomp
-      if self.find_by(username: username, password: hash(pass)) && i < 3
+      pass = hash(PROMPT.mask("Please Enter Your Password:", required: true))
+      if self.find_by(username: username, password: pass) && i < 3
         puts
         puts "#{Rainbow("==== Welcome #{username.capitalize}! ====").red.underline}"
         puts
         CLI.mainmenu(username)
         break
-      elsif i == 3
+      elsif i < 3
         puts "You Have Exceeded The Password Attempt Limit."
         break
       else
@@ -76,46 +57,24 @@ class User < ActiveRecord::Base
   end
 
   def self.validate_postcode
-    loop do
-      code = gets.delete(' ')
-      if code.length > 8 || code.length < 6
-        puts "The Postcode You Entered Was Not Valid."
-        puts "Please Enter A Valid Postcode:"
-        puts
-      else
-        break
-      end
-      code
+    PROMPT.ask("Please Input Your Postcode") do |postcode|
+      postcode.required true
+      postcode.validate(/^[a-zA-Z0-9]{3,4}\s[a-zA-Z0-9]{3,4}$/, 'Invalid Postcode')
+      postcode.modify :remove, :down
     end
   end
 
   def self.validate_age
-    loop do
-      age = gets.to_i
-      if age < 16 || age > 115
-        puts "The Age You Entered Was Not Valid."
-        puts "Please Enter A Valid Age:"
-        puts
-      else
-        break
-      end
-      age
+    PROMPT.ask("Please Input Your Age") do |age|
+      age.required true
+      age.in('16-115', 'You must be over the age of 16')
+      age.validate(/\d{2,3}/, 'Invalid Age')
+      age.convert :int
     end
   end
 
   def self.validate_gender
-    loop do
-      gender = gets.chomp.upcase
-      if gender != "M" && gender != "F" && gender != "O"
-        puts "The Gender You Entered Was Not Valid."
-        puts "Please Enter A Valid Gender:"
-        puts
-      else
-        break
-      end
-      gender
-    end
+    PROMPT.select("Please Select Your Gender", %w(M F O))
   end
-
 
 end

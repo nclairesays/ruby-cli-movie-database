@@ -10,8 +10,12 @@ class CLI
     puts
     puts "#{Rainbow(welcome_style).red.underline}"
     puts
-    username = PROMPT.ask("To begin, please enter your username:")
+    username = PROMPT.ask("To begin, please enter your username:", required: true)
     puts
+    signin_page(username)
+  end
+
+  def self.signin_page(username)
     selection = PROMPT.select("Please Select From One of the Following Options:", %w(Register Login Exit))
     puts #continue working on this and change.
     case selection
@@ -89,9 +93,7 @@ class CLI
   end
 
   def self.find_by_movie(user)
-    puts "Please Enter A Movie Title:"
-    puts
-    input = gets.chomp.downcase
+    input = PROMPT.ask("Please Enter A Movie Title:").downcase
     movie = Movie.find_by(title: input)
     # user = User.find_by(username: username)
     if movie == nil
@@ -122,16 +124,8 @@ class CLI
   end
 
   def self.movie_info_basic(movie)
+    puts
     puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}, IMDB Rating: #{movie.imdb_score}"
   end
 
 end
-#
-# private
-# def selection(username, value)
-#   if value == 1
-#     User.signup(username)
-#   elsif value == 2
-#     User.login(username)
-#   end
-# end
