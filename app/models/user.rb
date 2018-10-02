@@ -28,8 +28,7 @@ class User < ActiveRecord::Base
       CLI.mainmenu(username)
     else
       puts "Your passwords did not match."
-      puts "1: Sign Up"
-      puts "2: Login"
+      CLI.welcome ## maybe loop this
     end
   end
 
