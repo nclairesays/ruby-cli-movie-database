@@ -23,23 +23,23 @@ class CLI
     # puts
     # puts "8: #{Rainbow("Exit").underline}"
     # puts
-    PROMPT.select("Please Select From One of the Following Options:", %w(Rainbow("Sign Up"), Rainbow("Login"), Rainbow("Exit")))
+    selection = PROMPT.select("Please Select From One of the Following Options:", %w(Register Login Exit))
 
-    loop do
-      selection = gets.chomp.to_i
+    # loop do
+    #   selection = gets.chomp.to_i
       puts
       case selection
-      when 1
+      when "Register"
         User.signup(username)
-        break
-      when 2
+        # break
+      when "Login"
         User.login(username)
-        break
-      when 8
+        # break
+      when "Exit"
         goodbye_style = "==== Goodbye & Thank You For Using Our Database! ===="
         puts "#{Rainbow(goodbye_style).red.underline}"
         puts
-        break
+        # break
       else
         puts "Please Enter A Valid Navigation Entry."
         puts "1: #{Rainbow("Sign Up").underline}"
@@ -47,7 +47,7 @@ class CLI
         puts "8: #{Rainbow("Exit").underline}"
         puts
       end
-    end
+    # end
   end
 
   def self.mainmenu(username)
