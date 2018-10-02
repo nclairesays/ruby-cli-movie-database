@@ -3,21 +3,27 @@ require 'pry'
 require 'rainbow'
 
 class CLI
+  PROMPT = TTY::Prompt.new
+
   def self.welcome
     welcome_style = "==== Welcome To The Internet's No. 1 Movie Database ===="
     puts
     puts "#{Rainbow(welcome_style).red.underline}"
     puts
     puts "To Begin, Please Enter Your Username:"
-    puts
+    # puts
     username = gets.chomp
-    puts
-    puts "Please Select From One Of The Following Options:"
-    puts
-    puts "1: #{Rainbow("Sign Up").underline}"
-    puts "2: #{Rainbow("Login").underline}"
-    puts "8: #{Rainbow("Exit").underline}"
-    puts
+    # puts
+    # puts "Please Select From One Of The Following Options:"
+    # puts "==============================================="
+    # puts
+    # puts "1: #{Rainbow("Sign Up").underline}"
+    # puts
+    # puts "2: #{Rainbow("Login").underline}"
+    # puts
+    # puts "8: #{Rainbow("Exit").underline}"
+    # puts
+    PROMPT.select("Please Select From One of the Following Options:", %w(Rainbow("Sign Up"), Rainbow("Login"), Rainbow("Exit")))
 
     loop do
       selection = gets.chomp.to_i
