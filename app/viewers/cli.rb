@@ -1,18 +1,27 @@
 require_relative '../models/user.rb'
 require 'pry'
+require 'rainbow'
+
 class CLI
   def self.welcome
-    puts "Welcome to anything"
-    puts "Please enter your username:"
+    welcome_style = "==== Welcome To The Internet's No. 1 Movie Database ===="
+    puts
+    puts "#{Rainbow(welcome_style).red.underline}"
+    puts
+    puts "To Begin, Please Enter Your Username:"
+    puts
     username = gets.chomp
-
-    puts "Please select an option"
-    puts "1: Sign Up"
-    puts "2: Login"
-    puts "8: Exit"
+    puts
+    puts "Please Select From One Of The Following Options:"
+    puts
+    puts "1: #{Rainbow("Sign Up").underline}"
+    puts "2: #{Rainbow("Login").underline}"
+    puts "8: #{Rainbow("Exit").underline}"
+    puts
 
     loop do
       selection = gets.chomp.to_i
+      puts
       case selection
       when 1
         User.signup(username)
@@ -21,31 +30,39 @@ class CLI
         User.login(username)
         break
       when 8
-        puts "Good Bye"
+        goodbye_style = "==== Goodbye & Thank You For Using Our Database! ===="
+        puts "#{Rainbow(goodbye_style).red.underline}"
+        puts
         break
       else
-        puts "Please make a valid selection"
-        puts "1: Sign Up"
-        puts "2: Login"
-        puts "8: Exit"
+        puts "Please Enter A Valid Navigation Entry."
+        puts "1: #{Rainbow("Sign Up").underline}"
+        puts "2: #{Rainbow("Login").underline}"
+        puts "8: #{Rainbow("Exit").underline}"
+        puts
       end
     end
   end
 
   def self.mainmenu(username)
     user = User.find_by(username: username)
-    puts "Please choose from the following menu:"
-    puts "1. FIND MOVIE BY TITLE"
-    puts "2. FIND ACTIVITIES BY LOCATION"
-    puts "3. MY RECOMMENDATIONS"
-    puts "4. MY PROFILE"
-    puts "5. SURPRISE ME"
-    puts "6. HELP"
-    puts "7. ABOUT"
-    puts "8. EXIT"
+    puts "#{Rainbow("==== Main Menu ====").red.underline}"
+    puts
+    puts "Please Select From One Of The Following Options:"
+    puts
+    puts "1. #{Rainbow("Find Movie By Title").underline}"
+    puts "2. #{Rainbow("Find Activities By Location").underline}"
+    puts "3. #{Rainbow("My Recommendations").underline}"
+    puts "4. #{Rainbow("My Profile").underline}"
+    puts "5. #{Rainbow("Surprise Me!").underline}"
+    puts "6. #{Rainbow("Help").underline}"
+    puts "7. #{Rainbow("About").underline}"
+    puts "8. #{Rainbow("Exit").underline}"
+    puts
 
     loop do
       selection = gets.chomp.to_i
+      puts
       case selection
       when 1
         menu_one(user)
@@ -65,7 +82,7 @@ class CLI
       # when 7
       #   about
       when 8
-        puts "Good Bye"
+        puts "Goodbye"
         break
       else
         puts "Please make a valid selection"
@@ -80,15 +97,17 @@ class CLI
 
   private
   def self.menu_one(user)
-    puts "<<Find Movie by Title>>"
+    puts "#{Rainbow("<< Find Movie by Title >>").yellow.underline}"
     puts
-    puts "1. Find new movie by title"
-    puts "2. Recent searches"
-    puts "3. Popular amongst users"
-    puts "4. Return to main menu"
+    puts "1. #{Rainbow("Movie Search").underline}"
+    puts "2. #{Rainbow("Recent Searches").underline}"
+    puts "3. #{Rainbow("What's Popular Amongst All Users").underline}"
+    puts "4. #{Rainbow("Return To Main Menu").underline}"
+    puts
 
     loop do
       selection = gets.chomp.to_i
+      puts
       case selection
       when 1
         find_by_movie(user)
@@ -115,7 +134,8 @@ class CLI
   end
 
   def self.find_by_movie(user)
-    puts "Please enter a movie title"
+    puts "Please Enter A Movie Title:"
+    puts
     input = gets.chomp.downcase
     movie = Movie.find_by(title: input)
     # user = User.find_by(username: username)
@@ -123,7 +143,9 @@ class CLI
       result = get_movie_from_api(input)
       # binding.pry
       if result == nil
-        puts "Please enter a valid movie title"
+        puts "We Were Unable To Find A Movie With That Title."
+        puts "Please Enter A Valid Movie Title:"
+        puts
       else
         # Search.create(user_id: user, movie_id: result)
         movie_info(user, result)
@@ -137,8 +159,11 @@ class CLI
 
   def self.movie_info(user, movie)
     Search.create(user_id: user.id, movie_id: movie.id)
-    puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}"
+    puts
+    puts "==== #{Rainbow("#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}").red.underline} ===="
+    puts
     puts "#{movie.plot}"
+    puts
   end
 
   def self.movie_info_basic(movie)
