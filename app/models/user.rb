@@ -1,4 +1,5 @@
 require 'digest'
+# require_relative '../lib/cli.rb'
 
 class User < ActiveRecord::Base
   has_many :searches
@@ -24,6 +25,7 @@ class User < ActiveRecord::Base
       # puts gender
       puts "Thank you for signing up #{user.username}"
       # puts "Thank you for setting up your account #{user.username}"
+      CLI.mainmenu(username)
     else
       puts "Your passwords did not match."
       puts "1: Sign Up"
@@ -33,20 +35,29 @@ class User < ActiveRecord::Base
 
   def self.login(username)
     puts "Please enter your password"
-    validate(username, gets.chomp)
+    validate(username)
   end
 
   private
-  def self.validate(username, pass)
-    if self.find_by(username: username, password: hash(pass))
-      puts "yay"
-    else
-      puts "nay"
+  def self.validate(username)
+    i = 0
+    loop do
+      pass = gets.chomp
+      if self.find_by(username: username, password: hash(pass)) && i < 3
+        puts "Welcome #{username.capitalize}"
+        CLI.mainmenu(username)
+        break
+      elsif i == 3
+        puts ":("
+        break
+      else
+        i += 1
+        puts "Wrong username or password"
+      end
     end
-    #something with hashes and verifying against saved password in db
   end
 
-  def self.hash(pass)
+  def self.hash(pass) #hide password
     sha256 = Digest::SHA256.new
     hash = sha256.digest pass
     hash.force_encoding('UTF-8')
