@@ -6,15 +6,20 @@ class User < ActiveRecord::Base
   has_many :movies, through: :searches
 
   def self.signup(username)
-    puts "Please enter a password"
+    puts
+    puts "Please Enter A Password:"
     pass = hash(gets.chomp) #some hash, also blur out with gems
-    puts "Please enter your password again"
+    puts
+    puts "Please Enter Your Password Again:"
     if hash(gets.chomp) == pass #need to figure out pass perhaps .to_s
-      puts "Please input your postcode:" #some sort of postcode validation
+      puts
+      puts "Please Input Your Postcode:" #some sort of postcode validation
       postcode = validate_postcode
-      puts "Please input your age:"
+      puts
+      puts "Please Input Your Age:"
       age = validate_age
-      puts "Please input your gender: M / F / O"
+      puts
+      puts "Please Input Your Gender: M / F / O"
       gender = validate_gender
       # binding.pry
       user = User.create(username: username, password: pass, location: postcode, age: age, gender: gender)
@@ -23,17 +28,23 @@ class User < ActiveRecord::Base
       # puts postcode
       # puts age
       # puts gender
-      puts "Thank you for signing up #{user.username}"
+      puts
+      puts "==== Thank you for signing up #{user.username}! ===="
+      puts
       # puts "Thank you for setting up your account #{user.username}"
       CLI.mainmenu(username)
     else
-      puts "Your passwords did not match."
-      CLI.welcome ## maybe loop this
+      puts "The Passwords You Have Entered Did not Match."
+      puts
+      puts "1: Sign Up"
+      puts "2: Login"
+      puts
     end
   end
 
   def self.login(username)
-    puts "Please enter your password"
+    puts "Please Enter Your Password:"
+    puts
     validate(username)
   end
 
@@ -43,15 +54,17 @@ class User < ActiveRecord::Base
     loop do
       pass = gets.chomp
       if self.find_by(username: username, password: hash(pass)) && i < 3
-        puts "Welcome #{username.capitalize}"
+        puts
+        puts "#{Rainbow("==== Welcome #{username.capitalize}! ====").red.underline}"
+        puts
         CLI.mainmenu(username)
         break
       elsif i == 3
-        puts ":("
+        puts "You Have Exceeded The Password Attempt Limit."
         break
       else
         i += 1
-        puts "Wrong username or password"
+        puts "The Username Or Password You Have Entered Was Incorrect."
       end
     end
   end
@@ -66,7 +79,9 @@ class User < ActiveRecord::Base
     loop do
       code = gets.delete(' ')
       if code.length > 8 || code.length < 6
-        puts "Please enter a valid postcode"
+        puts "The Postcode You Entered Was Not Valid."
+        puts "Please Enter A Valid Postcode:"
+        puts
       else
         break
       end
@@ -78,7 +93,9 @@ class User < ActiveRecord::Base
     loop do
       age = gets.to_i
       if age < 16 || age > 115
-        puts "Please enter a valid age"
+        puts "The Age You Entered Was Not Valid."
+        puts "Please Enter A Valid Age:"
+        puts
       else
         break
       end
@@ -90,7 +107,9 @@ class User < ActiveRecord::Base
     loop do
       gender = gets.chomp.upcase
       if gender != "M" && gender != "F" && gender != "O"
-        puts "Please enter a valid gender"
+        puts "The Gender You Entered Was Not Valid."
+        puts "Please Enter A Valid Gender:"
+        puts
       else
         break
       end
