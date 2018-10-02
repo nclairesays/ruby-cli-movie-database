@@ -9,6 +9,7 @@ class CLI
     puts "Please select an option"
     puts "1: Sign Up"
     puts "2: Login"
+    puts "8: Exit"
 
     loop do
       selection = gets.chomp.to_i
@@ -19,15 +20,20 @@ class CLI
       when 2
         User.login(username)
         break
+      when 8
+        puts "Good Bye"
+        break
       else
         puts "Please make a valid selection"
         puts "1: Sign Up"
         puts "2: Login"
+        puts "8: Exit"
       end
     end
   end
 
   def self.mainmenu(username)
+    user = User.find_by(username: username)
     puts "Please choose from the following menu:"
     puts "1. FIND MOVIE BY TITLE"
     puts "2. FIND ACTIVITIES BY LOCATION"
@@ -42,7 +48,7 @@ class CLI
       selection = gets.chomp.to_i
       case selection
       when 1
-        find_by_movie(username)
+        menu_one(user)
         break
       # when 2
         # user = User.find_by(username: username)
@@ -59,7 +65,7 @@ class CLI
       # when 7
       #   about
       when 8
-        puts "Good bye"
+        puts "Good Bye"
         break
       else
         puts "Please make a valid selection"
@@ -73,11 +79,46 @@ class CLI
   end
 
   private
-  def self.find_by_movie(username)
+  def self.menu_one(user)
+    puts "<<Find Movie by Title>>"
+    puts
+    puts "1. Find new movie by title"
+    puts "2. Recent searches"
+    puts "3. Popular amongst users"
+    puts "4. Return to main menu"
+
+    loop do
+      selection = gets.chomp.to_i
+      case selection
+      when 1
+        find_by_movie(user)
+        menu_one(user)
+        break
+      when 2
+        user.movies.each do |movies|
+          movie_info_basic(movies)
+        end
+        menu_one(user)
+        break
+      when 3
+        var = Search.group(:movie_id).order('movie_id').limit(5).map{|t| Movie.find(t.movie_id)}
+        var.each do |movie|
+          movie_info_basic(movie)
+        end
+        menu_one(user)
+        break
+      when 4
+        mainmenu(user.username)
+        break
+      end
+    end
+  end
+
+  def self.find_by_movie(user)
     puts "Please enter a movie title"
     input = gets.chomp.downcase
     movie = Movie.find_by(title: input)
-    user = User.find_by(username: username)
+    # user = User.find_by(username: username)
     if movie == nil
       result = get_movie_from_api(input)
       # binding.pry
@@ -98,6 +139,10 @@ class CLI
     Search.create(user_id: user.id, movie_id: movie.id)
     puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}"
     puts "#{movie.plot}"
+  end
+
+  def self.movie_info_basic(movie)
+    puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}, IMDB Rating: #{movie.imdb_score}"
   end
 
 end
