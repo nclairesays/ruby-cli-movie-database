@@ -10,43 +10,23 @@ class CLI
     puts
     puts "#{Rainbow(welcome_style).red.underline}"
     puts
-    puts "To Begin, Please Enter Your Username:"
-    # puts
-    username = gets.chomp
-    # puts
-    # puts "Please Select From One Of The Following Options:"
-    # puts "==============================================="
-    # puts
-    # puts "1: #{Rainbow("Sign Up").underline}"
-    # puts
-    # puts "2: #{Rainbow("Login").underline}"
-    # puts
-    # puts "8: #{Rainbow("Exit").underline}"
-    # puts
+    username = PROMPT.ask("To begin, please enter your username:")
+    puts
     selection = PROMPT.select("Please Select From One of the Following Options:", %w(Register Login Exit))
-
-    # loop do
-    #   selection = gets.chomp.to_i
+    puts #continue working on this and change.
+    case selection
+    when "Register"
+      User.signup(username)
+      # break
+    when "Login"
+      User.login(username)
+      # break
+    when "Exit"
+      goodbye_style = "==== Goodbye & Thank You For Using Our Database! ===="
+      puts "#{Rainbow(goodbye_style).red.underline}"
       puts
-      case selection
-      when "Register"
-        User.signup(username)
-        # break
-      when "Login"
-        User.login(username)
-        # break
-      when "Exit"
-        goodbye_style = "==== Goodbye & Thank You For Using Our Database! ===="
-        puts "#{Rainbow(goodbye_style).red.underline}"
-        puts
-        # break
-      else
-        puts "Please Enter A Valid Navigation Entry."
-        puts "1: #{Rainbow("Sign Up").underline}"
-        puts "2: #{Rainbow("Login").underline}"
-        puts "8: #{Rainbow("Exit").underline}"
-        puts
-      end
+      # break
+    end
     # end
   end
 
@@ -54,50 +34,29 @@ class CLI
     user = User.find_by(username: username)
     puts "#{Rainbow("==== Main Menu ====").red.underline}"
     puts
-    puts "Please Select From One Of The Following Options:"
+    options = ["Find Movie By Title", "Find Activities By Location", "My Recommendations",
+    "My Profile", "Surprise Me!", "Help", "About", "Exit"]
+    selection = PROMPT.select("Please Select From One of the Following Options:", options)
     puts
-    puts "1. #{Rainbow("Find Movie By Title").underline}"
-    puts "2. #{Rainbow("Find Activities By Location").underline}"
-    puts "3. #{Rainbow("My Recommendations").underline}"
-    puts "4. #{Rainbow("My Profile").underline}"
-    puts "5. #{Rainbow("Surprise Me!").underline}"
-    puts "6. #{Rainbow("Help").underline}"
-    puts "7. #{Rainbow("About").underline}"
-    puts "8. #{Rainbow("Exit").underline}"
-    puts
-
-    loop do
-      selection = gets.chomp.to_i
-      puts
-      case selection
-      when 1
-        menu_one(user)
-        break
-      # when 2
-        # user = User.find_by(username: username)
-        # puts "#{user.movies}"
-        # find_by_location
-      # when 3
-      #   recommendations
-      # when 4
-      #   profile
-      # when 5
-      #   surprise
-      # when 6
-      #   help
-      # when 7
-      #   about
-      when 8
-        puts "Goodbye"
-        break
-      else
-        puts "Please make a valid selection"
-      end
-
-      #
-      # if selection == 1
-      #   find_by_movie
-      # elsif selection ==
+    case selection
+    when "Find Movie By Title"
+      menu_one(user)
+    # when 2
+      # user = User.find_by(username: username)
+      # puts "#{user.movies}"
+      # find_by_location
+    # when 3
+    #   recommendations
+    # when 4
+    #   profile
+    # when 5
+    #   surprise
+    # when 6
+    #   help
+    # when 7
+    #   about
+    when "Exit"
+      puts "Goodbye"
     end
   end
 
@@ -105,37 +64,27 @@ class CLI
   def self.menu_one(user)
     puts "#{Rainbow("<< Find Movie by Title >>").yellow.underline}"
     puts
-    puts "1. #{Rainbow("Movie Search").underline}"
-    puts "2. #{Rainbow("Recent Searches").underline}"
-    puts "3. #{Rainbow("What's Popular Amongst All Users").underline}"
-    puts "4. #{Rainbow("Return To Main Menu").underline}"
-    puts
+    options = ["Movie Search", "Recent Searches", "What's Popular Amongst All Users", "Return to Main Menu"]
+    selection = PROMPT.select("Find Movie by Title:", options)
 
-    loop do
-      selection = gets.chomp.to_i
-      puts
-      case selection
-      when 1
-        find_by_movie(user)
-        menu_one(user)
-        break
-      when 2
-        user.movies.each do |movies|
-          movie_info_basic(movies)
-        end
-        menu_one(user)
-        break
-      when 3
-        var = Search.group(:movie_id).order('movie_id').limit(5).map{|t| Movie.find(t.movie_id)}
-        var.each do |movie|
-          movie_info_basic(movie)
-        end
-        menu_one(user)
-        break
-      when 4
-        mainmenu(user.username)
-        break
+    puts
+    case selection
+    when "Movie Search"
+      find_by_movie(user)
+      menu_one(user)
+    when "Recent Searches"
+      user.movies.each do |movies|
+        movie_info_basic(movies)
       end
+      menu_one(user)
+    when "What's Popular Amongst All Users"
+      var = Search.group(:movie_id).order('movie_id').limit(5).map{|t| Movie.find(t.movie_id)}
+      var.each do |movie|
+        movie_info_basic(movie)
+      end
+      menu_one(user)
+    when "Return to Main Menu"
+      mainmenu(user.username)
     end
   end
 
