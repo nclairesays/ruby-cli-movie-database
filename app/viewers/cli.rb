@@ -41,17 +41,15 @@ class CLI
     user = User.find_by(username: username)
     puts "#{Rainbow("==== Main Menu ====").red.underline}"
     puts
-    options = ["Find Movie By Title", "Find Activities By Location", "My Recommendations",
+    options = ["Find Movie By Title", "Find Cinemas Near You", "My Recommendations",
     "My Profile", "Surprise Me!", "About", "Exit"]
     selection = PROMPT.select("Please Select From One of the Following Options:", options)
     puts
     case selection
     when "Find Movie By Title"
       menu_one(user)
-    # when "Find Activities By Location"
-      # user = User.find_by(username: username)
-      # puts "#{user.movies}"
-      # find_by_location
+    when "Find Cinemas Near You"
+      find_by_location(user)
     # when "My Recommendations"
     #   recommendations
     # when "My Profile"
@@ -67,6 +65,7 @@ class CLI
 
   private
   def self.menu_one(user)
+    puts
     puts "#{Rainbow("<< Find Movie by Title >>").yellow.underline}"
     puts
     options = ["Movie Search", "Recent Searches", "What's Popular Amongst All Users", "Return to Main Menu"]
@@ -83,7 +82,8 @@ class CLI
       end
       menu_one(user)
     when "What's Popular Amongst All Users"
-      var = Search.group(:movie_id).order('movie_id').limit(5).map{|t| Movie.find(t.movie_id)}
+      # groups movies by the amount of searches then returns descending list, limited to 5
+      var = Search.group('movie_id').order('count(movie_id) DESC').limit(5).map{|t| Movie.find(t.movie_id)}
       var.each do |movie|
         movie_info_basic(movie)
       end
@@ -129,7 +129,6 @@ class CLI
   end
 
   def self.movie_info_basic(movie)
-    puts
     puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}, IMDB Rating: #{movie.imdb_score}"
   end
 
@@ -146,17 +145,13 @@ class CLI
     mainmenu(user)
   end
 
-  def self.help_info(user)
-    puts
-    puts "Movie Database Is A Product of Ryan Barker & Sang Song"
-    puts
-    puts "==== Ryan Barker ===="
-    puts "Ryan is a young, software engineer in training. He has passion for technology and problem solving."
-    puts
-    puts "==== Sang Song ===="
-    puts "Sang is a young, software engineer in training. He has passion for technology and problem solving."
-    puts
+  def self.find_by_location(user)
+    # binding.pry
+    Launchy.open("www.google.com/maps/search/?api=1&query=Cinemas+#{user.location.upcase}")
     mainmenu(user)
   end
 
+  def self.my_profile(user)
+
+  end
 end

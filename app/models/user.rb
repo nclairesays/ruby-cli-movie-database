@@ -40,8 +40,9 @@ class User < ActiveRecord::Base
         puts
         CLI.mainmenu(username)
         break
-      elsif i < 3
+      elsif i == 2
         puts "You Have Exceeded The Password Attempt Limit."
+        CLI.welcome
         break
       else
         i += 1

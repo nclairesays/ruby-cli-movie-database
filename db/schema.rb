@@ -19,8 +19,7 @@ ActiveRecord::Schema.define(version: 20181001145037) do
     t.string  "director"
     t.string  "plot"
     t.float   "imdb_score"
-    t.integer "actor_id"
-    t.integer "genre_id"
+    t.string  "genre"
   end
 
   create_table "searches", force: :cascade do |t|

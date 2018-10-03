@@ -19,7 +19,8 @@ def get_movie_from_api(user_input)
               rated: response["Rated"],
               director: response["Director"],
               plot: response["Plot"],
-              imdb_score: response["imdbRating"])
+              imdb_score: response["imdbRating"],
+              genre: response["Genre"].split(',').first.downcase)
   end
 
   # Genre.new(genre: response["Genre"])
