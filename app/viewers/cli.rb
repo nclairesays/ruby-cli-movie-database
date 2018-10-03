@@ -42,26 +42,24 @@ class CLI
     puts "#{Rainbow("==== Main Menu ====").red.underline}"
     puts
     options = ["Find Movie By Title", "Find Activities By Location", "My Recommendations",
-    "My Profile", "Surprise Me!", "Help", "About", "Exit"]
+    "My Profile", "Surprise Me!", "About", "Exit"]
     selection = PROMPT.select("Please Select From One of the Following Options:", options)
     puts
     case selection
     when "Find Movie By Title"
       menu_one(user)
-    # when 2
+    # when "Find Activities By Location"
       # user = User.find_by(username: username)
       # puts "#{user.movies}"
       # find_by_location
-    # when 3
+    # when "My Recommendations"
     #   recommendations
-    # when 4
+    # when "My Profile"
     #   profile
-    # when 5
+    # when "Surprise Me!"
     #   surprise
-    # when 6
-    #   help
-    # when 7
-    #   about
+    when "About"
+      about_info(user)
     when "Exit"
       puts "#{Rainbow("==== Goodbye & Thank You For Using Our Database! ====").red.underline}"
     end
@@ -133,6 +131,32 @@ class CLI
   def self.movie_info_basic(movie)
     puts
     puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}, IMDB Rating: #{movie.imdb_score}"
+  end
+
+  def self.about_info(user)
+    puts
+    puts "Movie Database Is A Product of Ryan Barker & Sang Song"
+    puts
+    puts "==== Ryan Barker ===="
+    puts "Ryan is a young, software engineer in training. He has passion for technology and problem solving."
+    puts
+    puts "==== Sang Song ===="
+    puts "Sang is a young, software engineer in training. He has passion for technology and problem solving."
+    puts
+    mainmenu(user)
+  end
+
+  def self.help_info(user)
+    puts
+    puts "Movie Database Is A Product of Ryan Barker & Sang Song"
+    puts
+    puts "==== Ryan Barker ===="
+    puts "Ryan is a young, software engineer in training. He has passion for technology and problem solving."
+    puts
+    puts "==== Sang Song ===="
+    puts "Sang is a young, software engineer in training. He has passion for technology and problem solving."
+    puts
+    mainmenu(user)
   end
 
 end
