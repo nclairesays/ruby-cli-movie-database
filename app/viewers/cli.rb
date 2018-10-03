@@ -4,11 +4,14 @@ require 'rainbow'
 
 class CLI
   PROMPT = TTY::Prompt.new
+  FONT = TTY::Font.new(:starwars)
 
   def self.welcome
-    welcome_style = "==== Welcome To The Internet's No. 1 Movie Database ===="
+    # welcome_style = "==== Welcome To The Internet's No. 1 Movie Database ===="
     puts
-    puts "#{Rainbow(welcome_style).red.underline}"
+    # puts "#{Rainbow(welcome_style).red.underline}"
+    puts FONT.write("MOVIE")
+    puts FONT.write("DATABASE")
     puts
     username = PROMPT.ask("To begin, please enter your username:", required: true)
     puts
@@ -60,7 +63,7 @@ class CLI
     # when 7
     #   about
     when "Exit"
-      puts "Goodbye"
+      puts "#{Rainbow("==== Goodbye & Thank You For Using Our Database! ====").red.underline}"
     end
   end
 
@@ -94,9 +97,11 @@ class CLI
 
   def self.find_by_movie(user)
     input = PROMPT.ask("Please Enter A Movie Title:").downcase
-    movie = Movie.find_by(title: input)
+    # checks whether any titles in the db contain what the user has input
+    # returns true / false value
+    check = Movie.exists?(['title LIKE ?', "%#{input}%"])
     # user = User.find_by(username: username)
-    if movie == nil
+    if check == false
       result = get_movie_from_api(input)
       # binding.pry
       if result == nil
@@ -108,10 +113,11 @@ class CLI
         movie_info(user, result)
       end
      #find the matching db entry to user input
-    elsif movie.title == input
-
-      movie_info(user, movie)
-    end
+   elsif check == true
+     # finds the movie that contains whatever the user has inputted
+     # returns relavant title / plot info from db
+     movie = Movie.find_by(['title LIKE ?', "%#{input}%"])
+     movie_info(user, movie)
   end
 
   def self.movie_info(user, movie)
