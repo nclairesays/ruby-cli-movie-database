@@ -118,6 +118,7 @@ class CLI
      # returns relavant title / plot info from db
      movie = Movie.find_by(['title LIKE ?', "%#{input}%"])
      movie_info(user, movie)
+    end
   end
 
   def self.movie_info(user, movie)
