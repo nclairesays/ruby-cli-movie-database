@@ -7,7 +7,7 @@ require_relative '../config/environment'
 # end tell'
 # cmd.run("osascript -e", script)
 system("printf \"\033]0;Movie Database\007\"")
-system('clear')
+# CLI.reset
 
 
 CLI.welcome

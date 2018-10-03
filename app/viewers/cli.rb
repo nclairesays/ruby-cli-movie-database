@@ -2,107 +2,128 @@ require_relative '../models/user.rb'
 require_relative '../models/recommender.rb'
 require 'pry'
 require 'rainbow'
+include Style
 
 class CLI
+  # Instantiate new UI objects
   PROMPT = TTY::Prompt.new
   FONT = TTY::Font.new(:starwars)
   PASTEL = Pastel.new
 
+  # Welcome Screen With Logo And Username Prompt
   def self.welcome
-    # welcome_style = "==== Welcome To The Internet's No. 1 Movie Database ===="
-    puts
-    # puts "#{Rainbow(welcome_style).red.underline}"
+    reset
     puts PASTEL.magenta.bold(FONT.write('MOVIE'.center(50)))
     puts PASTEL.magenta.bold(FONT.write('DATABASE'))
     puts
-    username = PROMPT.ask('To begin, please enter your username:', required: true)
-    puts
-    signin_page(username)
+    signin_page
   end
 
-  def self.signin_page(username)
-    selection = PROMPT.select('Please Select From One of the Following Options:', %w[Register Login Exit])
-    puts # continue working on this and change.
+  # Registration / Login page
+  def self.signin_page
+    username = PROMPT.ask("#{normal("Please Enter Your Username:")}", required: true).downcase
+    puts
+    selection = PROMPT.select("#{normal("Please Select From One of the Following Options:")}", %w[Register Login Exit])
+    puts
     case selection
     when 'Register'
-      User.signup(username)
-      # break
+      if User.find_by(username: username)
+        puts warning("Username Already Exists. Please Login Or Choose a Different Username.")
+        signin_page
+      else
+        User.signup(username)
+      end
     when 'Login'
-      User.login(username)
-      # break
+      if User.find_by(username: username)
+        User.login(User.find_by(username: username))
+      else
+        puts warning("Username Does Not Exist. Please Register.")
+        signin_page
+      end
     when 'Exit'
-      goodbye_style = '==== Goodbye & Thank You For Using Our Database! ===='
-      puts Rainbow(goodbye_style).red.underline.to_s
-      puts
-      # break
+      puts message("==== Goodbye & Thank You For Using Our Database! ====")
     end
-    # end
   end
 
-  def self.mainmenu(username)
-    # instiates 'user' variable as an object -
-    # this is so we pass the object between methods instead of the string for 'username'
-    user = User.find_by(username: username)
-    puts Rainbow('==== Main Menu ====').red.underline.to_s
+  def self.mainmenu(user)
+    reset
     puts
-
     options = ["Find Movie By Title", "Find Cinemas Near You", "My Recommendations",
     "Account Management", "About", "Exit"]
-    selection = PROMPT.select("Please Select From One of the Following Options:", options)
+    selection = PROMPT.select("#{menu('======= Main Menu =======')}\n", options)
     puts
     case selection
     when 'Find Movie By Title'
+      reset
       menu_one(user)
     when 'Find Cinemas Near You'
+      reset
       find_by_location(user)
     when 'Account Management'
+      reset
       User.account_management_validation(user)
     when "My Recommendations"
+      reset
       recommendations(user)
     when "About"
+      reset
       about_info(user)
     when 'Exit'
-      puts Rainbow('==== Goodbye & Thank You For Using Our Database! ====').red.underline.to_s
+      puts message('==== Goodbye & Thank You For Using Our Database! ====')
     end
   end
 
   def self.movie_info_basic(movie)
-    puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}, IMDB Rating: #{movie.imdb_score}"
+    puts "#{message("#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}")}, #{menu("IMDB Rating: #{movie.imdb_score}")}"
   end
 
   private
 
   def self.menu_one(user)
-    puts
-    puts Rainbow('<< Find Movie by Title >>').yellow.underline.to_s
-    puts
     options = ['Movie Search', 'Recent Searches', "What's Popular Amongst All Users", 'Return to Main Menu']
-    selection = PROMPT.select('Find Movie by Title:', options)
+    selection = PROMPT.select("#{menu('<< Find Movie by Title >>')}\n", options)
 
     puts
     case selection
     when 'Movie Search'
+      reset
       find_by_movie(user)
       menu_one(user)
     when "Recent Searches"
-      user.movies.reverse.first(10).each do |movies|
-        movie_info_basic(movies)
-      end
+      reset
+      recent_searches(user)
       menu_one(user)
     when "What's Popular Amongst All Users"
+      reset
       # groups movies by the amount of searches then returns descending list, limited to 5
-      var = Search.group('movie_id').order('count(movie_id) DESC').limit(5).map { |t| Movie.find(t.movie_id) }
-      var.each do |movie|
-        movie_info_basic(movie)
-      end
+      popular(user)
       menu_one(user)
     when 'Return to Main Menu'
-      mainmenu(user.username)
+      mainmenu(user)
     end
   end
 
+  def self.popular(user)
+    var = Search.group('movie_id').order('count(movie_id) DESC').limit(5).map { |t| Movie.find(t.movie_id) }
+    table = TTY::Table.new []
+    renderer = TTY::Table::Renderer::Basic.new(table)
+    var.each do |movie|
+      table << movie_info_basic(movie)
+    end
+    puts renderer.render
+  end
+
+  def self.recent_searches(user)
+    table = TTY::Table.new []
+    renderer = TTY::Table::Renderer::Basic.new(table)
+    user.movies.reverse.first(10).each do |movies|
+      table << movie_info_basic(movies)
+    end
+    puts renderer.render
+  end
+
   def self.find_by_movie(user)
-    input = PROMPT.ask('Please Enter A Movie Title:').downcase
+    input = PROMPT.ask(normal('Please Enter A Movie Title:')).downcase
     # checks whether any titles in the db contain what the user has input
     # returns true / false value
     check = Movie.exists?(['title LIKE ?', "%#{input}%"])
@@ -111,9 +132,7 @@ class CLI
       result = get_movie_from_api(input)
       # binding.pry
       if result.nil?
-        puts 'We Were Unable To Find A Movie With That Title.'
-        puts 'Please Enter A Valid Movie Title:'
-        puts
+        puts warning('We Were Unable To Find A Movie With That Title.')
       else
         # Search.create(user_id: user, movie_id: result)
         movie_info(user, result)
@@ -128,33 +147,33 @@ class CLI
   end
 
   def self.movie_info(user, movie)
+    reset
     # binding.pry
     Search.create(user_id: user.id, movie_id: movie.id)
     puts
-    puts "==== #{Rainbow("#{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year}").red.underline} ===="
+    puts message("====== #{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year} ======")
     puts
-    puts movie.plot.to_s
+    puts normal(movie.plot.to_s)
     puts
   end
 
   def self.movie_info_basic(movie)
-    puts "#{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year}, IMDB Rating: #{movie.imdb_score}"
+    ["#{message("#{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year}")}", "#{menu("IMDB Rating: #{movie.imdb_score}")}"]
   end
 
   def self.about_info(user)
     puts
-    puts "'Movie Database' Is A Product of Ryan Barker & Sang Song"
+    puts menu("'Movie Database' Is A Product of Ryan Barker & Sang Song")
     puts
-    puts '==== Ryan Barker ===='
-    puts 'Ryan is a young, software engineer in training. He has passion for technology and problem solving.'
+    puts message('==== Ryan Barker ====')
+    puts normal('Ryan is a young, software engineer in training. He has passion for technology and problem solving.')
     puts
-    puts '==== Sang Song ===='
-    puts 'Sang is a young, software engineer in training. He has passion for technology and problem solving.'
+    puts message('==== Sang Song ====')
+    puts normal('Sang is a young, software engineer in training. He has passion for technology and problem solving.')
     puts
     puts
-    puts "==== APIs Used ===="
-    puts "OMDB API"
-    puts "TMDB API"
+    puts message("==== APIs Used ====")
+    puts normal("OMDB API")
     mainmenu(user)
   end
 
@@ -163,42 +182,18 @@ class CLI
     mainmenu(user.username)
   end
 
-  def self.my_profile(user)
-    puts
-    puts Rainbow("<< #{user.username.capitalize}'s Account >>").yellow.underline.to_s
-    puts
-    options = ['Change Username', 'Change Password', 'Change Postcode', 'Delete Account', 'Return To Main Menu']
-    selection = PROMPT.select('Please Select From One of the Following Options:', options)
-    puts
-    case selection
-    when 'Change Username'
-      #requires password, then prompts for username change
-      User.username_change(user)
-    when 'Change Password'
-      User.password_change(user)
-    when 'Change Postcode'
-      User.postcode_change(user)
-    when 'Delete Account'
-      User.delete_account(user)
-    when 'Return To Main Menu'
-      mainmenu(user)
-    end
-  end
-
   def self.recommendations(user)
     options = ["Surprise Me", "Recommend Me Based on Genre", "View my Recommendations", "Return to Main Menu"]
-    selection = PROMPT.select("Please Select From One of the Following Options:", options)
+    selection = PROMPT.select(menu("<< Recommendations >>"), options)
     puts
     case selection
     when "Surprise Me"
-      # binding.pry
-      #Recommend based on features + throw a wildcard every couplee
       Recommender.surprise_me(user)
       recommendations(user)
     when "Recommend Me Based on Genre"
       genres = []
       Movie.all.group('genre').distinct.map{|m| genres << m.genre}
-      selection = PROMPT.select("Please Select a Genre:", genres)
+      selection = PROMPT.select(normal("Please Select a Genre:"), genres)
       Recommender.recommend_based_on_genre(selection, user)
       recommendations(user)
       #Recommend a single movie based on the movie they choose
@@ -207,7 +202,11 @@ class CLI
       recommendations(user)
       #Return last 10 recommended movies for user
     when "Return to Main Menu"
-      mainmenu(user.username)
+      mainmenu(user)
     end
+  end
+
+  def self.reset
+    system('reset')
   end
 end

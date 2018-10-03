@@ -12,7 +12,7 @@ gem "tty-prompt"
 gem "tty-command"
 gem "tty-box"
 gem "tty-font"
+gem "tty-table"
 gem 'launchy', '~> 2.4', '>= 2.4.3'
 gem 'pastel'
 gem 'decisiontree'
-# gem 'tty-table'
