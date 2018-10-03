@@ -1,4 +1,5 @@
 require_relative '../models/user.rb'
+require_relative '../models/recommender.rb'
 require 'pry'
 require 'rainbow'
 
@@ -42,7 +43,7 @@ class CLI
     puts "#{Rainbow("==== Main Menu ====").red.underline}"
     puts
     options = ["Find Movie By Title", "Find Cinemas Near You", "My Recommendations",
-    "My Profile", "Surprise Me!", "About", "Exit"]
+    "My Profile", "About", "Exit"]
     selection = PROMPT.select("Please Select From One of the Following Options:", options)
     puts
     case selection
@@ -50,17 +51,19 @@ class CLI
       menu_one(user)
     when "Find Cinemas Near You"
       find_by_location(user)
-    # when "My Recommendations"
-    #   recommendations
+    when "My Recommendations"
+      recommendations(user) #consider adding a recommendations thing.
     when "My Profile"
     #   profile
-    # when "Surprise Me!"
-    #   surprise
     when "About"
       about_info(user)
     when "Exit"
       puts "#{Rainbow("==== Goodbye & Thank You For Using Our Database! ====").red.underline}"
     end
+  end
+
+  def self.movie_info_basic(movie)
+    puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}, IMDB Rating: #{movie.imdb_score}"
   end
 
   private
@@ -77,7 +80,7 @@ class CLI
       find_by_movie(user)
       menu_one(user)
     when "Recent Searches"
-      user.movies.each do |movies|
+      user.movies.reverse.first(10).each do |movies|
         movie_info_basic(movies)
       end
       menu_one(user)
@@ -94,6 +97,7 @@ class CLI
   end
 
   def self.find_by_movie(user)
+    # binding.pry
     input = PROMPT.ask("Please Enter A Movie Title:").downcase
     # checks whether any titles in the db contain what the user has input
     # returns true / false value
@@ -120,6 +124,7 @@ class CLI
   end
 
   def self.movie_info(user, movie)
+    # binding.pry
     Search.create(user_id: user.id, movie_id: movie.id)
     puts
     puts "==== #{Rainbow("#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}").red.underline} ===="
@@ -128,9 +133,7 @@ class CLI
     puts
   end
 
-  def self.movie_info_basic(movie)
-    puts "#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}, IMDB Rating: #{movie.imdb_score}"
-  end
+
 
   def self.about_info(user)
     puts
@@ -142,14 +145,44 @@ class CLI
     puts "==== Sang Song ===="
     puts "Sang is a young, software engineer in training. He has passion for technology and problem solving."
     puts
+    puts
+    puts "==== APIs Used ===="
+    puts "OMDB API"
+    puts "TMDB API"
     mainmenu(user)
   end
 
   def self.find_by_location(user)
     Launchy.open("www.google.com/maps/search/?api=1&query=Cinemas+#{user.location.upcase}")
-    mainmenu(user)
+    mainmenu(user.username)
   end
 
   def self.my_profile(user)
+  end
+
+  def self.recommendations(user)
+    options = ["Surprise Me", "Recommend Me Based on Genre", "View my Recommendations", "Return to Main Menu"]
+    selection = PROMPT.select("Please Select From One of the Following Options:", options)
+    puts
+    case selection
+    when "Surprise Me"
+      # binding.pry
+      #Recommend based on features + throw a wildcard every couplee
+      Recommender.surprise_me(user)
+      recommendations(user)
+    when "Recommend Me Based on Genre"
+      genres = []
+      Movie.all.group('genre').distinct.map{|m| genres << m.genre}
+      selection = PROMPT.select("Please Select a Genre:", genres)
+      Recommender.recommend_based_on_genre(selection, user)
+      recommendations(user)
+      #Recommend a single movie based on the movie they choose
+    when "View my Recommendations"
+      Recommender.view_recommendations(user)
+      recommendations(user)
+      #Return last 10 recommended movies for user
+    when "Return to Main Menu"
+      mainmenu(user.username)
+    end
   end
 end

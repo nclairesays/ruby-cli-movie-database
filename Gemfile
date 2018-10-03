@@ -13,4 +13,5 @@ gem "tty-command"
 gem "tty-box"
 gem "tty-font"
 gem 'launchy', '~> 2.4', '>= 2.4.3'
+gem 'decisiontree'
 # gem 'tty-table'

@@ -3,6 +3,7 @@ require 'digest'
 
 class User < ActiveRecord::Base
   has_many :searches
+  has_many :recommendations
   has_many :movies, through: :searches
 
   PROMPT = TTY::Prompt.new
