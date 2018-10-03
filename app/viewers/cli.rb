@@ -52,7 +52,7 @@ class CLI
       find_by_location(user)
     # when "My Recommendations"
     #   recommendations
-    # when "My Profile"
+    when "My Profile"
     #   profile
     # when "Surprise Me!"
     #   surprise
@@ -146,12 +146,10 @@ class CLI
   end
 
   def self.find_by_location(user)
-    # binding.pry
     Launchy.open("www.google.com/maps/search/?api=1&query=Cinemas+#{user.location.upcase}")
     mainmenu(user)
   end
 
   def self.my_profile(user)
-
   end
 end
