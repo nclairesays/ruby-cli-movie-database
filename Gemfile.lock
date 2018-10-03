@@ -104,6 +104,7 @@ PLATFORMS
 DEPENDENCIES
   json
   launchy (~> 2.4, >= 2.4.3)
+  pastel
   pry
   rainbow
   require_all
