@@ -114,12 +114,16 @@ class CLI
   end
 
   def self.recent_searches(user)
+    title_header
     table = TTY::Table.new []
     renderer = TTY::Table::Renderer::Basic.new(table)
     user.movies.reverse.first(10).each do |movies|
       table << movie_info_basic(movies)
     end
     puts renderer.render
+    puts
+    PROMPT.keypress("Press space to continue...", keys: [:space])
+    reset
   end
 
   def self.find_by_movie(user)
