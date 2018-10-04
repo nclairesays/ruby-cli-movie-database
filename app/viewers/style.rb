@@ -6,6 +6,7 @@ module Style
 
   FONT = TTY::Font.new(:starwars)
   PASTEL = Pastel.new
+  LOAD = TTY::Spinner.new("[:spinner] Searching ...", format: :pulse_2)
 
   def normal(string)
     Rainbow(string).white
@@ -27,6 +28,13 @@ module Style
     puts PASTEL.magenta.bold(FONT.write('MOVIE'.center(50)))
     puts PASTEL.magenta.bold(FONT.write('DATABASE'))
     puts
+  end
+
+  def spinner_animation(stop_message)
+    LOAD.auto_spin
+    sleep(2)
+    LOAD.stop(stop_message)
+    sleep(0.6)
   end
 
 end

@@ -114,6 +114,8 @@ class CLI
       table << movie_info_basic(movie)
     end
     title_header
+    puts menu("<< Popular Movies >>")
+    puts
     puts renderer.render
     puts
     PROMPT.keypress("Press space to continue...", keys: [:space])
@@ -122,6 +124,8 @@ class CLI
 
   def self.recent_searches(user)
     title_header
+    puts menu("<< #{user.username.capitalize}'s Recent Searches >>")
+    puts
     table = TTY::Table.new []
     renderer = TTY::Table::Renderer::Basic.new(table)
     user.movies.reverse.first(10).each do |movies|
@@ -142,8 +146,14 @@ class CLI
     if check == false
       result = get_movie_from_api(input)
       if result.nil?
-        puts warning('We Were Unable To Find A Movie With That Title.')
+        puts
+        spinner_animation(warning('We Were Unable To Find A Movie With That Title.'))
+        puts
+        PROMPT.keypress("Press space to return to Find Movie by Title...", keys: [:space])
+        reset
       else
+        puts
+        spinner_animation(message("Movie Found!"))
         movie_info(user, result)
       end
     # find the matching db entry to user input
@@ -151,6 +161,8 @@ class CLI
       # finds the movie that contains whatever the user has inputted
       # returns relavant title / plot info from db
       movie = Movie.find_by(['title LIKE ?', "%#{input}%"])
+      puts
+      spinner_animation(message("Movie Found!"))
       movie_info(user, movie)
     end
   end
@@ -187,7 +199,7 @@ class CLI
     puts message("==== APIs Used ====")
     puts normal("1. OMDB API\n2. Google Maps API")
     puts
-    PROMPT.keypress("Press space to continue...", keys: [:space])
+    PROMPT.keypress("Press space to return to the Main Menu...", keys: [:space])
     mainmenu(user)
   end
 
@@ -204,7 +216,7 @@ class CLI
   def self.recommendations(user)
     title_header
     options = ["Surprise Me", "Recommend Me Based on Genre", "View my Recommendations", "Return to Main Menu"]
-    selection = PROMPT.select(menu("<< Recommendations >>"), options)
+    selection = PROMPT.select(menu("<< Recommendations >>\n"), options)
     puts
     case selection
     when "Surprise Me"

@@ -130,7 +130,10 @@ class User < ActiveRecord::Base
     user.update(username: new_username)
     puts
     puts message("Your Username Has Been Successfully Updated!")
-    CLI.my_profile(user)
+    sleep(1)
+    CLI.reset
+    CLI.title_header
+    my_profile(user)
   end
 
   def self.password_change(user)
@@ -156,18 +159,24 @@ class User < ActiveRecord::Base
       user.update(password: pass)
       puts
       puts message("Your Password Has Been Successfully Updated!")
-      CLI.my_profile(user)
+      sleep(1)
+      CLI.reset
+      CLI.title_header
+      my_profile(user)
     else
       puts
       puts warning("The Passwords You Have Entered Did Not Match.")
-      CLI.my_profile(user)
+      sleep(1)
+      CLI.reset
+      CLI.title_header
+      my_profile(user)
     end
   end
 
   # this validates the postcode in order for us to change through Account Management
   # this is required so we can reference the variable in the postcode_change method below
   def self.postcode_change_validation
-    PROMPT.ask(normal("Please Enter Your New Postcode:")) do |postcode|
+    PROMPT.ask(normal("Please Enter Your New Postcode (Eg 'KT10 9JP'):")) do |postcode|
       postcode.required true
       postcode.validate(/^[a-zA-Z0-9]{3,4}\s[a-zA-Z0-9]{3,4}$/, 'Invalid Postcode')
       postcode.modify :remove, :down
@@ -175,18 +184,38 @@ class User < ActiveRecord::Base
   end
 
   def self.postcode_change(user)
-    puts normal("Your current postcode is set to: '#{user.location.upcase}'")
+    puts normal("Your current postcode is: '#{user.location.upcase}'")
     puts
     postcode = postcode_change_validation
     user.update(location: postcode)
     puts
     puts message("Your Postcode Has Been Successfully Updated!")
+    sleep(1)
+    CLI.reset
+    CLI.title_header
     my_profile(user)
   end
 
   def self.delete_account(username)
-    PROMPT.ask(warning('Type "DELETE" To Confirm Account Deletion:'), required: "DELETE")
-    User.delete(username.id)
-    puts message("DELETED")
+    delete_if = PROMPT.ask("Type #{message("DELETE")} To Confirm Account Deletion or #{message("CANCEL")} to Go Back:") do |q|
+      q.required true
+      q.validate(/^DELETE|CANCEL$/, warning("Invalid Input"))
+    end
+    if delete_if == "DELETE"
+      User.delete(username.id)
+      puts
+      puts message("Your Account Has Been Successfully Deleted.")
+      sleep(1)
+      CLI.reset
+      CLI.title_header
+      my_profile(username)
+    else
+      puts
+      puts message("Returning to Account Management")
+      sleep(1)
+      CLI.reset
+      CLI.title_header
+      my_profile(username)
+    end
   end
 end
