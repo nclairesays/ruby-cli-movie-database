@@ -13,9 +13,7 @@ class CLI
   # Welcome Screen With Logo And Username Prompt
   def self.welcome
     reset
-    puts PASTEL.magenta.bold(FONT.write('MOVIE'.center(50)))
-    puts PASTEL.magenta.bold(FONT.write('DATABASE'))
-    puts
+    title_header
     signin_page
   end
 
@@ -47,7 +45,7 @@ class CLI
 
   def self.mainmenu(user)
     reset
-    puts
+    title_header
     options = ["Find Movie By Title", "Find Cinemas Near You", "My Recommendations",
     "Account Management", "About", "Exit"]
     selection = PROMPT.select("#{menu('======= Main Menu =======')}\n", options)
@@ -60,6 +58,7 @@ class CLI
       reset
       find_by_location(user)
     when 'Account Management'
+      # required password verification to transition
       reset
       User.account_management_validation(user)
     when "My Recommendations"
@@ -80,6 +79,7 @@ class CLI
   private
 
   def self.menu_one(user)
+    title_header
     options = ['Movie Search', 'Recent Searches', "What's Popular Amongst All Users", 'Return to Main Menu']
     selection = PROMPT.select("#{menu('<< Find Movie by Title >>')}\n", options)
 
@@ -123,18 +123,16 @@ class CLI
   end
 
   def self.find_by_movie(user)
+    title_header
     input = PROMPT.ask(normal('Please Enter A Movie Title:')).downcase
     # checks whether any titles in the db contain what the user has input
     # returns true / false value
     check = Movie.exists?(['title LIKE ?', "%#{input}%"])
-    # user = User.find_by(username: username)
     if check == false
       result = get_movie_from_api(input)
-      # binding.pry
       if result.nil?
         puts warning('We Were Unable To Find A Movie With That Title.')
       else
-        # Search.create(user_id: user, movie_id: result)
         movie_info(user, result)
       end
     # find the matching db entry to user input
@@ -148,13 +146,15 @@ class CLI
 
   def self.movie_info(user, movie)
     reset
-    # binding.pry
+    title_header
     Search.create(user_id: user.id, movie_id: movie.id)
     puts
     puts message("====== #{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year} ======")
     puts
     puts normal(movie.plot.to_s)
     puts
+    PROMPT.keypress("Press space to continue...", keys: [:space])
+    reset
   end
 
   def self.movie_info_basic(movie)
@@ -183,6 +183,7 @@ class CLI
   end
 
   def self.recommendations(user)
+    title_header
     options = ["Surprise Me", "Recommend Me Based on Genre", "View my Recommendations", "Return to Main Menu"]
     selection = PROMPT.select(menu("<< Recommendations >>"), options)
     puts

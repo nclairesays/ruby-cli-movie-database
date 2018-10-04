@@ -1,6 +1,12 @@
 require 'rainbow'
 
+# styles defined for project-wide usage
+
 module Style
+
+  FONT = TTY::Font.new(:starwars)
+  PASTEL = Pastel.new
+
   def normal(string)
     Rainbow(string).white
   end
@@ -16,4 +22,11 @@ module Style
   def menu(string)
     Rainbow(string).yellow.underline
   end
+
+  def title_header
+    puts PASTEL.magenta.bold(FONT.write('MOVIE'.center(50)))
+    puts PASTEL.magenta.bold(FONT.write('DATABASE'))
+    puts
+  end
+
 end
