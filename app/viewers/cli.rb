@@ -80,7 +80,7 @@ class CLI
 
   def self.menu_one(user)
     title_header
-    options = ['Movie Search', 'Recent Searches', "What's Popular Amongst All Users", 'Return to Main Menu']
+    options = ['Movie Search', 'Recent Searches', "My Favourites","What's Popular Amongst All Users", 'Return to Main Menu']
     selection = PROMPT.select("#{menu('<< Find Movie by Title >>')}\n", options)
 
     puts
@@ -93,6 +93,9 @@ class CLI
       reset
       recent_searches(user)
       menu_one(user)
+    when "My Favourites"
+      reset
+      my_favourites(user)
     when "What's Popular Amongst All Users"
       reset
       # groups movies by the amount of searches then returns descending list, limited to 5
@@ -111,6 +114,42 @@ class CLI
       table << movie_info_basic(movie)
     end
     puts renderer.render
+  end
+
+  def self.my_favourites(user)
+    reset
+    title_header
+    favourites = []
+    Favourite.all.where(user_id: user.id).reverse.take(10).each{|t| favourites << Movie.find(t.movie_id).title.split.map(&:capitalize).join(' ')}
+    favourites << "Go Back"
+    selection = PROMPT.select(normal("Please Select A Movie For More Info:"), favourites)
+    if selection == "Go Back"
+      reset
+      menu_one(user)
+    else
+    show_fave(selection, user)
+    end
+  end
+
+  def self.show_fave(movie_title, user)
+    reset
+    title_header
+    movie = Movie.find_by(title: movie_title.downcase)
+    puts
+    puts message("====== #{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year} ======")
+    puts
+    puts normal(movie.plot.to_s)
+    puts
+    input = PROMPT.yes?(normal('Would You Like To Keep This In Your Favourites?'))
+    case input
+    when true
+      reset
+      my_favourites(user)
+    when false
+      Favourite.delete(Favourite.find_by(user_id: user.id, movie_id: movie.id).id)
+      reset
+      my_favourites(user)
+    end
   end
 
   def self.recent_searches(user)
@@ -133,11 +172,11 @@ class CLI
     # returns true / false value
     check = Movie.exists?(['title LIKE ?', "%#{input}%"])
     if check == false
-      result = get_movie_from_api(input)
-      if result.nil?
+      movie = get_movie_from_api(input)
+      if movie.nil?
         puts warning('We Were Unable To Find A Movie With That Title.')
       else
-        movie_info(user, result)
+        movie_info(user, movie)
       end
     # find the matching db entry to user input
     elsif check == true
@@ -157,8 +196,20 @@ class CLI
     puts
     puts normal(movie.plot.to_s)
     puts
-    PROMPT.keypress("Press space to continue...", keys: [:space])
-    reset
+    input = PROMPT.yes?(normal('Would You Like To Keep This In Your Favourites?'))
+    case input
+    when true
+      if Favourite.where(user_id: user.id, movie_id: movie.id).exists?
+        puts message("You Have Already Favourited This Movie")
+        PROMPT.keypress(normal("Please Press Space or Enter to Continue"),require: true, keys: [:space, :return])
+        reset
+      else
+        Favourite.create(user_id: user.id, movie_id: movie.id)
+        reset
+      end
+    when false
+      reset
+    end
   end
 
   def self.movie_info_basic(movie)

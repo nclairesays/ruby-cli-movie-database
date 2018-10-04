@@ -127,7 +127,7 @@ class User < ActiveRecord::Base
     user.update(username: new_username)
     puts
     puts message("Your Username Has Been Successfully Updated!")
-    CLI.my_profile(user)
+    my_profile(user)
   end
 
   def self.password_change(user)
@@ -153,11 +153,11 @@ class User < ActiveRecord::Base
       user.update(password: pass)
       puts
       puts message("Your Password Has Been Successfully Updated!")
-      CLI.my_profile(user)
+      my_profile(user)
     else
       puts
       puts warning("The Passwords You Have Entered Did Not Match.")
-      CLI.my_profile(user)
+      my_profile(user)
     end
   end
 
