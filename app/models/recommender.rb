@@ -91,9 +91,16 @@ class Recommender < ActiveRecord::Base
       selection = PROMPT.yes?(normal("Would You Like To Favourite This?"))
       case selection
       when true
-        Favourite.create(user_id: user.id, movie_id: movie.id)
-        CLI.reset
-        CLI.recommendations(user)
+        if Favourite.exists?(user_id: user.id, movie_id: movie.id)
+          puts message("You Have Already Favourited This Movie")
+          PROMPT.keypress(normal("Please Press Space or Enter to Continue"),require: true, keys: [:space, :return])
+          CLI.reset
+          CLI.recommendations(user)
+        else
+          Favourite.create(user_id: user.id, movie_id: movie.id)
+          CLI.reset
+          CLI.recommendations(user)
+        end
       when false
         CLI.reset
         CLI.recommendations(user)
