@@ -285,11 +285,9 @@ class CLI
       Movie.all.group('genre').distinct.map{|m| genres << m.genre}
       selection = PROMPT.select(normal("Please Select a Genre:"), genres)
       Recommender.recommend_based_on_genre(selection, user)
-      recommendations(user)
       #Recommend a single movie based on the movie they choose
     when "View my Recommendations"
       Recommender.view_recommendations(user)
-      recommendations(user)
       #Return last 10 recommended movies for user
     when "Return to Main Menu"
       mainmenu(user)

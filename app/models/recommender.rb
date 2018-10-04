@@ -42,8 +42,7 @@ class Recommender < ActiveRecord::Base
       puts message("The AI is Still Collecting Data. Thank You For Your Patience.")
       puts
       PROMPT.keypress("Press space to continue...", keys: [:space])
-      CLI.reset
-      CLI.recommendations(user)
+      refresh(user)
     end
   end
 
@@ -67,8 +66,7 @@ class Recommender < ActiveRecord::Base
     recommendations << message("Go Back")
     selection = PROMPT.select(normal("Please Select A Movie For More Info:\n"), recommendations)
     if selection == message("Go Back")
-      CLI.reset
-      CLI.recommendations(user)
+      refresh(user)
     else
     show_recommendations(selection, user)
     end
@@ -78,13 +76,7 @@ class Recommender < ActiveRecord::Base
     CLI.reset
     title_header
     movie = Movie.find_by(title: movie_title.downcase)
-    puts
-    puts message("====== #{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year} ======")
-    puts
-    puts normal(movie.plot.to_s)
-    puts
-    puts menu("IMDB Score: #{movie.imdb_score}")
-    puts
+    text(movie)
     input = PROMPT.yes?(normal('Would You Like To Keep This In Your Recommendations?'))
     case input
     when true
@@ -94,22 +86,33 @@ class Recommender < ActiveRecord::Base
         if Favourite.exists?(user_id: user.id, movie_id: movie.id)
           puts message("You Have Already Favourited This Movie")
           PROMPT.keypress(normal("Please Press Space or Enter to Continue"),require: true, keys: [:space, :return])
-          CLI.reset
-          CLI.recommendations(user)
+          refresh(user)
         else
           Favourite.create(user_id: user.id, movie_id: movie.id)
-          CLI.reset
-          CLI.recommendations(user)
+          refresh(user)
         end
       when false
-        CLI.reset
-        CLI.recommendations(user)
+        refresh(user)
       end
     when false
       Recommendation.delete(Recommendation.find_by(user_id: user.id, movie_id: movie.id).id)
-      CLI.reset
-      CLI.recommendations(user)
+      refresh(user)
     end
+  end
+
+  def self.refresh(user)
+    CLI.reset
+    CLI.recommendations(user)
+  end
+
+  def self.text(movie)
+    puts
+    puts message("====== #{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year} ======")
+    puts
+    puts normal(movie.plot.to_s)
+    puts
+    puts menu("IMDB Score: #{movie.imdb_score}")
+    puts
   end
 end
 
