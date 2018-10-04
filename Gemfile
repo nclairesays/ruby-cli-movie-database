@@ -25,6 +25,7 @@ gem "tty-box"
 gem "tty-font"
 gem "tty-table"
 gem 'pastel'
+gem 'tty-spinner'
 
 # ML
 gem 'decisiontree'

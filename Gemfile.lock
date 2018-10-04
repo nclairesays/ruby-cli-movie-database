@@ -104,6 +104,8 @@ GEM
       tty-screen (~> 0.6.4)
       wisper (~> 2.0.0)
     tty-screen (0.6.5)
+    tty-spinner (0.8.0)
+      tty-cursor (>= 0.5.0)
     tty-table (0.10.0)
       equatable (~> 0.5.0)
       necromancer (~> 0.4.0)
@@ -138,6 +140,7 @@ DEPENDENCIES
   tty-command
   tty-font
   tty-prompt
+  tty-spinner
   tty-table
 
 BUNDLED WITH

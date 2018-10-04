@@ -46,7 +46,7 @@ class CLI
   def self.mainmenu(user)
     reset
     title_header
-    options = ["Find Movie By Title", "Find Cinemas Near You", "My Recommendations",
+    options = ["Find Movie By Title", "Find Cinemas Near You", "Find Restaurants Near You", "My Recommendations",
     "Account Management", "About", "Exit"]
     selection = PROMPT.select("#{menu('======= Main Menu =======')}\n", options)
     puts
@@ -57,6 +57,9 @@ class CLI
     when 'Find Cinemas Near You'
       reset
       find_by_location(user)
+    when 'Find Restaurants Near You'
+      reset
+      restaurant_by_location(user)
     when 'Account Management'
       # required password verification to transition
       reset
@@ -110,11 +113,19 @@ class CLI
     var.each do |movie|
       table << movie_info_basic(movie)
     end
+    title_header
+    puts menu("<< Popular Movies >>")
+    puts
     puts renderer.render
+    puts
+    PROMPT.keypress("Press space to continue...", keys: [:space])
+    reset
   end
 
   def self.recent_searches(user)
     title_header
+    puts menu("<< #{user.username.capitalize}'s Recent Searches >>")
+    puts
     table = TTY::Table.new []
     renderer = TTY::Table::Renderer::Basic.new(table)
     user.movies.reverse.first(10).each do |movies|
@@ -135,8 +146,14 @@ class CLI
     if check == false
       result = get_movie_from_api(input)
       if result.nil?
-        puts warning('We Were Unable To Find A Movie With That Title.')
+        puts
+        spinner_animation(warning('We Were Unable To Find A Movie With That Title.'))
+        puts
+        PROMPT.keypress("Press space to return to Find Movie by Title...", keys: [:space])
+        reset
       else
+        puts
+        spinner_animation(message("Movie Found!"))
         movie_info(user, result)
       end
     # find the matching db entry to user input
@@ -144,6 +161,8 @@ class CLI
       # finds the movie that contains whatever the user has inputted
       # returns relavant title / plot info from db
       movie = Movie.find_by(['title LIKE ?', "%#{input}%"])
+      puts
+      spinner_animation(message("Movie Found!"))
       movie_info(user, movie)
     end
   end
@@ -166,6 +185,7 @@ class CLI
   end
 
   def self.about_info(user)
+    title_header
     puts
     puts menu("'Movie Database' Is A Product of Ryan Barker & Sang Song")
     puts
@@ -177,19 +197,26 @@ class CLI
     puts
     puts
     puts message("==== APIs Used ====")
-    puts normal("OMDB API")
+    puts normal("1. OMDB API\n2. Google Maps API")
+    puts
+    PROMPT.keypress("Press space to return to the Main Menu...", keys: [:space])
     mainmenu(user)
   end
 
   def self.find_by_location(user)
-    Launchy.open("www.google.com/maps/search/?api=1&query=Cinemas+#{user.location.upcase}")
+    Launchy.open("www.google.com/maps/search/?api=1&query=Cinemas+near+#{user.location.upcase}")
+    mainmenu(user)
+  end
+
+  def self.restaurant_by_location(user)
+    Launchy.open("www.google.com/maps/search/?api=1&query=Restaurants+near+#{user.location.upcase}")
     mainmenu(user)
   end
 
   def self.recommendations(user)
     title_header
     options = ["Surprise Me", "Recommend Me Based on Genre", "View my Recommendations", "Return to Main Menu"]
-    selection = PROMPT.select(menu("<< Recommendations >>"), options)
+    selection = PROMPT.select(menu("<< Recommendations >>\n"), options)
     puts
     case selection
     when "Surprise Me"
