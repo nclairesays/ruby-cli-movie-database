@@ -24,9 +24,10 @@ class Recommender < ActiveRecord::Base
           end
         end
         dec_tree = DecisionTree::ID3Tree.new(labels, training, 0, age: :continuous,
-          gender: :discrete, genre: :discrete, score: :continuous)
+          gender: :discrete, genre: :discrete, score: :discrete)
+          binding.pry
         dec_tree.train
-        data = [user.age, user.gender, user.movies.group('genre').order('count(genre) DESC').limit(1)[0].genre]
+        data = [user.age, user.gender, user.movies.group('genre').order('count(genre) DESC').limit(1)[0].genre, 0.5]
         pred = dec_tree.predict(data)
         Recommendation.create(user_id: user.id, movie_id: pred)
         show_recommendations(Movie.find(pred).title, user)
