@@ -8,24 +8,25 @@ class Recommender < ActiveRecord::Base
       random = Random.new
       chance = random.rand(1.0)
       if chance < 0.85
-        labels = ["age", "gender", "genre", "movie_score"]
+        labels = ["age", "gender", "genre", "imdb"]
         training = []
         Search.all.each do |s|
           if User.exists?(s.user_id)
-            average_favourites = Favourite.where(movie_id: s.movie_id).count / Search.where(movie_id: s.movie_id).count
-            average_total_favourites = Favourite.where(movie_id: s.movie_id).count / Favourite.all.count
-            average_from_searches = Favourite.where(movie_id: s.movie_id).count / Search.all.count
-            average_movie_search = Search.where(movie_id: s.movie_id).count / Search.all.count
-            imdb = Movie.find(s.movie_id).imdb_score / 10
-
-            score = (average_favourites + average_total_favourites + average_from_searches + average_movie_search + imdb) / 5
-            training << [User.find(s.user_id).age, User.find(s.user_id).gender,
-              Movie.find(s.movie_id).genre, score, s.movie_id]
+            # if User.all.count > 100
+            #   average_favourites = Favourite.where(movie_id: s.movie_id).count / Search.where(movie_id: s.movie_id).count
+            #   average_total_favourites = Favourite.where(movie_id: s.movie_id).count / Favourite.all.count
+            #   average_from_searches = Favourite.where(movie_id: s.movie_id).count / Search.all.count
+            #   average_movie_search = Search.where(movie_id: s.movie_id).count / Search.all.count
+              imdb = Movie.find(s.movie_id).imdb_score / 10
+            #
+            #   score = (average_favourites + average_total_favourites + average_from_searches + average_movie_search + imdb) / 5
+              training << [User.find(s.user_id).age, User.find(s.user_id).gender, Movie.find(s.movie_id).genre, imdb, s.movie_id]
+            # end
           end
         end
         dec_tree = DecisionTree::ID3Tree.new(labels, training, 0, age: :continuous,
-          gender: :discrete, genre: :discrete, score: :discrete)
-          binding.pry
+          gender: :discrete, genre: :discrete, imdb: :continuous)
+          # binding.pry
         dec_tree.train
         data = [user.age, user.gender, user.movies.group('genre').order('count(genre) DESC').limit(1)[0].genre, 0.5]
         pred = dec_tree.predict(data)
