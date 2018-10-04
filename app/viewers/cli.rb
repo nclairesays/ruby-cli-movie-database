@@ -125,14 +125,16 @@ class CLI
     reset
     title_header
     favourites = []
-    Favourite.all.where(user_id: user.id).reverse.take(10).each{|t| favourites << message(Movie.find(t.movie_id).title.split.map(&:capitalize).join(' '))}
+    Favourite.all.where(user_id: user.id).reverse.take(10).each{|t| favourites << Movie.find(t.movie_id).title.split.map(&:capitalize).join(' ')}
     favourites << message("Go Back")
     selection = PROMPT.select(normal("Please Select A Movie For More Info:\n"), favourites)
-    if selection == "Go Back"
+    if selection == message("Go Back")
       reset
       menu_one(user)
     else
     show_fave(selection, user)
+    PROMPT.keypress("Press space to continue...", keys: [:space])
+    reset
     end
   end
 
@@ -214,7 +216,7 @@ class CLI
     input = PROMPT.yes?(normal('Would You Like To Keep This In Your Favourites?'))
     case input
     when true
-      if Favourite.where(user_id: user.id, movie_id: movie.id).exists?
+      if Favourite.exists?(user_id: user.id, movie_id: movie.id)
         puts message("You Have Already Favourited This Movie")
         PROMPT.keypress(normal("Please Press Space or Enter to Continue"),require: true, keys: [:space, :return])
         reset

@@ -7,7 +7,7 @@ class Recommender < ActiveRecord::Base
     if User.all.count > 5 && Search.all.count > 5 && Movie.all.count > 5
       random = Random.new
       chance = random.rand(1.0)
-      if chance < 0.85
+      if chance < 0.4
         labels = ["age", "gender", "genre", "imdb"]
         training = []
         Search.all.each do |s|
@@ -64,9 +64,9 @@ class Recommender < ActiveRecord::Base
     movies.uniq.each do |m|
       recommendations << Movie.find(m).title.split.map(&:capitalize).join(' ')
     end
-    recommendations << "Go Back"
+    recommendations << message("Go Back")
     selection = PROMPT.select(normal("Please Select A Movie For More Info:\n"), recommendations)
-    if selection == "Go Back"
+    if selection == message("Go Back")
       CLI.reset
       CLI.recommendations(user)
     else
@@ -96,7 +96,7 @@ class Recommender < ActiveRecord::Base
         CLI.recommendations(user)
       when false
         CLI.reset
-        CLI.recommendations
+        CLI.recommendations(user)
       end
     when false
       Recommendation.delete(Recommendation.find_by(user_id: user.id, movie_id: movie.id).id)
