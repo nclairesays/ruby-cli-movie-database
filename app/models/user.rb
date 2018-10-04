@@ -29,6 +29,7 @@ class User < ActiveRecord::Base
   end
 
   def self.account_management_validation(user)
+    CLI.title_header
     i = 0
     loop do
       pass = hash(PROMPT.mask(normal("Please Enter Your Password:"), required: true))
@@ -43,6 +44,8 @@ class User < ActiveRecord::Base
         puts warning("The Password You Have Entered Was Incorrect.")
       end
     end
+    CLI.reset
+    CLI.title_header
     my_profile(user)
   end
 
@@ -55,7 +58,7 @@ class User < ActiveRecord::Base
     puts message("<< #{user.username.capitalize}'s Account >>")
     puts
     options = ['Change Username', 'Change Password', 'Change Postcode', 'Delete Account', 'Return To Main Menu']
-    selection = PROMPT.select(menu('Please Select From One of the Following Options:'), options)
+    selection = PROMPT.select(menu("Please Select From One of the Following Options:\n"), options)
     puts
     case selection
     when 'Change Username'
@@ -101,7 +104,7 @@ class User < ActiveRecord::Base
   end
 
   def self.validate_postcode
-    PROMPT.ask(normal("Please Input Your Postcode:")) do |postcode|
+    PROMPT.ask(normal("Please Input Your Postcode (Eg 'TW7 6DA'):")) do |postcode|
       postcode.required true
       postcode.validate(/^[a-zA-Z0-9]{3,4}\s[a-zA-Z0-9]{3,4}$/, warning('Invalid Postcode'))
       postcode.modify :remove, :down

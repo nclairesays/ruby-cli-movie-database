@@ -46,7 +46,7 @@ class CLI
   def self.mainmenu(user)
     reset
     title_header
-    options = ["Find Movie By Title", "Find Cinemas Near You", "My Recommendations",
+    options = ["Find Movie By Title", "Find Cinemas Near You", "Find Restaurants Near You", "My Recommendations",
     "Account Management", "About", "Exit"]
     selection = PROMPT.select("#{menu('======= Main Menu =======')}\n", options)
     puts
@@ -57,6 +57,9 @@ class CLI
     when 'Find Cinemas Near You'
       reset
       find_by_location(user)
+    when 'Find Restaurants Near You'
+      reset
+      restaurant_by_location(user)
     when 'Account Management'
       # required password verification to transition
       reset
@@ -110,7 +113,11 @@ class CLI
     var.each do |movie|
       table << movie_info_basic(movie)
     end
+    title_header
     puts renderer.render
+    puts
+    PROMPT.keypress("Press space to continue...", keys: [:space])
+    reset
   end
 
   def self.recent_searches(user)
@@ -166,6 +173,7 @@ class CLI
   end
 
   def self.about_info(user)
+    title_header
     puts
     puts menu("'Movie Database' Is A Product of Ryan Barker & Sang Song")
     puts
@@ -177,12 +185,19 @@ class CLI
     puts
     puts
     puts message("==== APIs Used ====")
-    puts normal("OMDB API")
+    puts normal("1. OMDB API\n2. Google Maps API")
+    puts
+    PROMPT.keypress("Press space to continue...", keys: [:space])
     mainmenu(user)
   end
 
   def self.find_by_location(user)
-    Launchy.open("www.google.com/maps/search/?api=1&query=Cinemas+#{user.location.upcase}")
+    Launchy.open("www.google.com/maps/search/?api=1&query=Cinemas+near+#{user.location.upcase}")
+    mainmenu(user)
+  end
+
+  def self.restaurant_by_location(user)
+    Launchy.open("www.google.com/maps/search/?api=1&query=Restaurants+near+#{user.location.upcase}")
     mainmenu(user)
   end
 
