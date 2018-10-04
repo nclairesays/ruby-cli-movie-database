@@ -116,7 +116,7 @@ class User < ActiveRecord::Base
   def self.validate_postcode
     PROMPT.ask(normal("Please Input Your Postcode (Eg 'TW7 6DA'):")) do |postcode|
       postcode.required true
-      postcode.validate(/^[a-zA-Z0-9]{3,4}\s[a-zA-Z0-9]{3,4}$/, warning('Invalid Postcode'))
+      postcode.validate(/^[a-zA-Z0-9]{2,4}\s[a-zA-Z0-9]{2,4}$/, warning('Invalid Postcode'))
       postcode.modify :remove, :down
     end
   end
@@ -188,7 +188,7 @@ class User < ActiveRecord::Base
   def self.postcode_change_validation
     PROMPT.ask(normal("Please Enter Your New Postcode (Eg 'KT10 9JP'):")) do |postcode|
       postcode.required true
-      postcode.validate(/^[a-zA-Z0-9]{3,4}\s[a-zA-Z0-9]{3,4}$/, 'Invalid Postcode')
+      postcode.validate(/^[a-zA-Z0-9]{2,4}\s[a-zA-Z0-9]{2,4}$/, 'Invalid Postcode')
       postcode.modify :remove, :down
     end
   end
