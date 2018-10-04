@@ -3,7 +3,7 @@ require 'rainbow'
 # styles defined for project-wide usage
 
 module Style
-
+  PROMPT = TTY::Prompt.new
   FONT = TTY::Font.new(:starwars)
   PASTEL = Pastel.new
 

@@ -94,6 +94,16 @@ class User < ActiveRecord::Base
     end
   end
 
+  def self.validate_username
+    PROMPT.ask("#{normal("Please Enter Your Username:")}") do |q|
+      q.required true
+      q.validate(/\A\w{4,20}\z/, warning("User Must Be Alphanumeric And Must Be Betwen 4 and 20 Letters Long."))
+      q.modify :down
+      q.modify :remove
+    end
+
+  end
+
   def self.hash(pass) #hide password
     sha256 = Digest::SHA256.new
     hash = sha256.digest pass
@@ -123,7 +133,7 @@ class User < ActiveRecord::Base
 
   def self.username_change(user)
     puts
-    new_username = PROMPT.ask(normal('Please Enter Your New Username:'), required: true).downcase
+    new_username = validate_username
     user.update(username: new_username)
     puts
     puts message("Your Username Has Been Successfully Updated!")

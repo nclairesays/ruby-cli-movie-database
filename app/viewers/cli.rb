@@ -6,9 +6,7 @@ include Style
 
 class CLI
   # Instantiate new UI objects
-  PROMPT = TTY::Prompt.new
-  FONT = TTY::Font.new(:starwars)
-  PASTEL = Pastel.new
+
 
   # Welcome Screen With Logo And Username Prompt
   def self.welcome
@@ -19,7 +17,7 @@ class CLI
 
   # Registration / Login page
   def self.signin_page
-    username = PROMPT.ask("#{normal("Please Enter Your Username:")}", required: true).downcase
+    username = User.validate_username
     puts
     selection = PROMPT.select("#{normal("Please Select From One of the Following Options:")}", %w[Register Login Exit])
     puts
@@ -76,8 +74,6 @@ class CLI
     puts "#{message("#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}")}, #{menu("IMDB Rating: #{movie.imdb_score}")}"
   end
 
-  private
-
   def self.menu_one(user)
     title_header
     options = ['Movie Search', 'Recent Searches', "My Favourites","What's Popular Amongst All Users", 'Return to Main Menu']
@@ -120,9 +116,9 @@ class CLI
     reset
     title_header
     favourites = []
-    Favourite.all.where(user_id: user.id).reverse.take(10).each{|t| favourites << Movie.find(t.movie_id).title.split.map(&:capitalize).join(' ')}
-    favourites << "Go Back"
-    selection = PROMPT.select(normal("Please Select A Movie For More Info:"), favourites)
+    Favourite.all.where(user_id: user.id).reverse.take(10).each{|t| favourites << message(Movie.find(t.movie_id).title.split.map(&:capitalize).join(' '))}
+    favourites << message("Go Back")
+    selection = PROMPT.select(normal("Please Select A Movie For More Info:\n"), favourites)
     if selection == "Go Back"
       reset
       menu_one(user)
@@ -239,13 +235,13 @@ class CLI
 
   def self.recommendations(user)
     title_header
+    puts
     options = ["Surprise Me", "Recommend Me Based on Genre", "View my Recommendations", "Return to Main Menu"]
-    selection = PROMPT.select(menu("<< Recommendations >>"), options)
+    selection = PROMPT.select(menu("<< Recommendations >>\n"), options)
     puts
     case selection
     when "Surprise Me"
       Recommender.surprise_me(user)
-      recommendations(user)
     when "Recommend Me Based on Genre"
       genres = []
       Movie.all.group('genre').distinct.map{|m| genres << m.genre}
