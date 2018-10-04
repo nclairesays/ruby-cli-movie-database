@@ -3,7 +3,7 @@
 [![asciicast](https://asciinema.org/a/OOUJUttKJT6v6Ipgm5OPuAPty.png)](https://asciinema.org/a/OOUJUttKJT6v6Ipgm5OPuAPty)
 
 ## About
-Movie Database was created by rgbarker and ssong as part of the Flatiron School's Mod 1 project. It is a Ruby CLI application that uses the Open Movie Database API and the Google Maps API to provide the user with movie information, as well as, relevant cinema and restaurant information. The `decisiontree` gem was used to implement a basic recommender for movie recommendations.
+Movie Database was created by [rgbarker](https://github.com/Ryanbarker0) and [ssong-eu](https://github.com/ssong-eu) as part of the Flatiron School's Mod 1 project. It is a Ruby CLI application that uses the Open Movie Database API and the Google Maps API to provide the user with movie information, as well as, relevant cinema and restaurant information. The [`decisiontree`](https://github.com/igrigorik/decisiontree) gem was used to implement a basic recommender for movie recommendations.
 
 ## Instructions
 To try it out, simply clone the repository and run `bundle install` in terminal at the repo directory. Once the relevant gems are installed run `rake db:migrate` to initialize the sqlite3 database. Then run `ruby bin/run.rb` and enjoy!
@@ -21,5 +21,5 @@ To try it out, simply clone the repository and run `bundle install` in terminal 
 
 ## APIs
 
-1. OMDB
+1. [OMDB](https://omdbapi.com)
 2. Google Maps
