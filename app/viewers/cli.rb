@@ -183,7 +183,7 @@ class CLI
 
   def self.find_by_location(user)
     Launchy.open("www.google.com/maps/search/?api=1&query=Cinemas+#{user.location.upcase}")
-    mainmenu(user.username)
+    mainmenu(user)
   end
 
   def self.recommendations(user)

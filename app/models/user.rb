@@ -4,6 +4,7 @@ include Style
 class User < ActiveRecord::Base
   has_many :searches
   has_many :recommendations
+  has_many :favourites
   has_many :movies, through: :searches
 
   PROMPT = TTY::Prompt.new
@@ -177,7 +178,7 @@ class User < ActiveRecord::Base
     user.update(location: postcode)
     puts
     puts message("Your Postcode Has Been Successfully Updated!")
-    CLI.my_profile(user)
+    my_profile(user)
   end
 
   def self.delete_account(username)
