@@ -9,5 +9,6 @@ require_relative '../config/environment'
 system("printf \"\033]0;Movie Database\007\"")
 # CLI.reset
 
-
+system("bundle install")
+system("rake db:migrate")
 CLI.welcome

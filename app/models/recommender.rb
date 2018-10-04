@@ -33,16 +33,10 @@ class Recommender < ActiveRecord::Base
         Recommendation.create(user_id: user.id, movie_id: pred)
         show_recommendations(Movie.find(pred).title, user)
       else
-        genre = user.movies.group('genre').order('count(genre) DESC').limit(1)[0].genre
-        movie = Movie.all.where(genre: genre).sample
-        Recommendation.create(user_id: user.id, movie_id: movie.id)
-        show_recommendations(movie.title, user)
+        user_genre_recommendation(user)
       end
     else
-      puts message("The AI is Still Collecting Data. Thank You For Your Patience.")
-      puts
-      PROMPT.keypress("Press space to continue...", keys: [:space])
-      refresh(user)
+      user_genre_recommendation(user)
     end
   end
 
@@ -53,6 +47,13 @@ class Recommender < ActiveRecord::Base
     puts
     show_recommendations(selection, user)
     puts
+  end
+
+  def self.user_genre_recommendation(user)
+    genre = user.movies.group('genre').order('count(genre) DESC').limit(1)[0].genre
+    movie = Movie.all.where(genre: genre).sample
+    Recommendation.create(user_id: user.id, movie_id: movie.id)
+    show_recommendations(movie.title, user)
   end
 
   def self.view_recommendations(user)
