@@ -150,10 +150,16 @@ class CLI
     input = PROMPT.yes?(normal('Would You Like To Keep This In Your Favourites?'))
     case input
     when true
+      puts
+      puts message("Favourited Saved")
+      sleep(1.5)
       reset
       my_favourites(user)
     when false
       Favourite.delete(Favourite.find_by(user_id: user.id, movie_id: movie.id).id)
+      puts
+      puts message("Your Favourite Has Been Successfully Removed.")
+      sleep(1.5)
       reset
       my_favourites(user)
     end
@@ -222,6 +228,9 @@ class CLI
         reset
       else
         Favourite.create(user_id: user.id, movie_id: movie.id)
+        puts
+        puts message("New Movie Successfully Saved To Favourites.")
+        sleep(1.5)
         reset
       end
     when false
@@ -276,9 +285,11 @@ class CLI
       Movie.all.group('genre').distinct.map{|m| genres << m.genre}
       selection = PROMPT.select(normal("Please Select a Genre:"), genres)
       Recommender.recommend_based_on_genre(selection, user)
+      recommendations(user)
       #Recommend a single movie based on the movie they choose
     when "View my Recommendations"
       Recommender.view_recommendations(user)
+      recommendations(user)
       #Return last 10 recommended movies for user
     when "Return to Main Menu"
       mainmenu(user)

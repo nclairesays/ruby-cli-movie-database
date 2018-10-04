@@ -215,10 +215,10 @@ class User < ActiveRecord::Base
       User.delete(username.id)
       puts
       puts message("Your Account Has Been Successfully Deleted.")
-      sleep(1)
-      CLI.reset
-      CLI.title_header
-      my_profile(username)
+      puts
+      puts message("Returning to Login.")
+      sleep(2.5)
+      CLI.welcome
     else
       puts
       puts message("Returning to Account Management")
