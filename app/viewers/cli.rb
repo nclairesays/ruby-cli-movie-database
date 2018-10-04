@@ -6,9 +6,7 @@ include Style
 
 class CLI
   # Instantiate new UI objects
-  PROMPT = TTY::Prompt.new
-  FONT = TTY::Font.new(:starwars)
-  PASTEL = Pastel.new
+
 
   # Welcome Screen With Logo And Username Prompt
   def self.welcome
@@ -19,7 +17,7 @@ class CLI
 
   # Registration / Login page
   def self.signin_page
-    username = PROMPT.ask("#{normal("Please Enter Your Username:")}", required: true).downcase
+    username = User.validate_username
     puts
     selection = PROMPT.select("#{normal("Please Select From One of the Following Options:")}", %w[Register Login Exit])
     puts
@@ -79,11 +77,9 @@ class CLI
     puts "#{message("#{movie.title.split.map(&:capitalize).join(" ")}, #{movie.year}")}, #{menu("IMDB Rating: #{movie.imdb_score}")}"
   end
 
-  private
-
   def self.menu_one(user)
     title_header
-    options = ['Movie Search', 'Recent Searches', "What's Popular Amongst All Users", 'Return to Main Menu']
+    options = ['Movie Search', 'Recent Searches', "My Favourites","What's Popular Amongst All Users", 'Return to Main Menu']
     selection = PROMPT.select("#{menu('<< Find Movie by Title >>')}\n", options)
 
     puts
@@ -96,6 +92,9 @@ class CLI
       reset
       recent_searches(user)
       menu_one(user)
+    when "My Favourites"
+      reset
+      my_favourites(user)
     when "What's Popular Amongst All Users"
       reset
       # groups movies by the amount of searches then returns descending list, limited to 5
@@ -120,6 +119,42 @@ class CLI
     puts
     PROMPT.keypress("Press space to continue...", keys: [:space])
     reset
+  end
+
+  def self.my_favourites(user)
+    reset
+    title_header
+    favourites = []
+    Favourite.all.where(user_id: user.id).reverse.take(10).each{|t| favourites << message(Movie.find(t.movie_id).title.split.map(&:capitalize).join(' '))}
+    favourites << message("Go Back")
+    selection = PROMPT.select(normal("Please Select A Movie For More Info:\n"), favourites)
+    if selection == "Go Back"
+      reset
+      menu_one(user)
+    else
+    show_fave(selection, user)
+    end
+  end
+
+  def self.show_fave(movie_title, user)
+    reset
+    title_header
+    movie = Movie.find_by(title: movie_title.downcase)
+    puts
+    puts message("====== #{movie.title.split.map(&:capitalize).join(' ')}, #{movie.year} ======")
+    puts
+    puts normal(movie.plot.to_s)
+    puts
+    input = PROMPT.yes?(normal('Would You Like To Keep This In Your Favourites?'))
+    case input
+    when true
+      reset
+      my_favourites(user)
+    when false
+      Favourite.delete(Favourite.find_by(user_id: user.id, movie_id: movie.id).id)
+      reset
+      my_favourites(user)
+    end
   end
 
   def self.recent_searches(user)
@@ -176,8 +211,20 @@ class CLI
     puts
     puts normal(movie.plot.to_s)
     puts
-    PROMPT.keypress("Press space to continue...", keys: [:space])
-    reset
+    input = PROMPT.yes?(normal('Would You Like To Keep This In Your Favourites?'))
+    case input
+    when true
+      if Favourite.where(user_id: user.id, movie_id: movie.id).exists?
+        puts message("You Have Already Favourited This Movie")
+        PROMPT.keypress(normal("Please Press Space or Enter to Continue"),require: true, keys: [:space, :return])
+        reset
+      else
+        Favourite.create(user_id: user.id, movie_id: movie.id)
+        reset
+      end
+    when false
+      reset
+    end
   end
 
   def self.movie_info_basic(movie)
@@ -215,13 +262,13 @@ class CLI
 
   def self.recommendations(user)
     title_header
+    puts
     options = ["Surprise Me", "Recommend Me Based on Genre", "View my Recommendations", "Return to Main Menu"]
     selection = PROMPT.select(menu("<< Recommendations >>\n"), options)
     puts
     case selection
     when "Surprise Me"
       Recommender.surprise_me(user)
-      recommendations(user)
     when "Recommend Me Based on Genre"
       genres = []
       Movie.all.group('genre').distinct.map{|m| genres << m.genre}
