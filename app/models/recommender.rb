@@ -88,7 +88,7 @@ class Recommender < ActiveRecord::Base
         q.required true
         q.validate(/\A[y|Y|n|N]\z{1}/, warning('Invalid Input'))
       end
-      if selection == 'Y' || input == 'y'
+      if selection == 'Y' || selection == 'y'
         if Favourite.exists?(user_id: user.id, movie_id: movie.id)
           puts
           puts message("You Have Already Favourited This Movie")
@@ -102,7 +102,7 @@ class Recommender < ActiveRecord::Base
           sleep(1.5)
           refresh(user)
         end
-      elsif selection == 'N' || 'n'
+      elsif selection == 'N' || selection == 'n'
         refresh(user)
       end
     elsif input == 'N' || input == 'n'
