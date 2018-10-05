@@ -10,7 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181004095931) do
+ActiveRecord::Schema.define(version: 20181005094242) do
+
+  create_table "admins", force: :cascade do |t|
+    t.string "username"
+    t.string "password"
+  end
 
   create_table "favourites", force: :cascade do |t|
     t.integer "user_id"
@@ -43,6 +48,7 @@ ActiveRecord::Schema.define(version: 20181004095931) do
     t.string  "location"
     t.integer "age"
     t.string  "gender"
+    t.        "password_flag"
   end
 
 end

@@ -55,6 +55,7 @@ class CLI
         end
       when 'Exit'
         puts message("==== Goodbye & Thank You For Using Our Database! ====")
+        puts
       end
     end
   end
@@ -88,6 +89,7 @@ class CLI
       about_info(user)
     when 'Exit'
       puts message('==== Goodbye & Thank You For Using Our Database! ====')
+      puts
     end
   end
 

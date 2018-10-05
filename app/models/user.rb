@@ -21,7 +21,8 @@ class User < ActiveRecord::Base
       gender = validate_gender
       user = User.create(username: username, password: pass, location: postcode, age: age, gender: gender)
       puts
-      puts message("==== Thank You For Signing Up #{user.username}! ====")
+      puts message("==== Thank You For Signing Up, #{user.username.capitalize}! ====")
+      sleep(1.5)
       puts
       CLI.mainmenu(user)
     else
