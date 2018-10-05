@@ -23,3 +23,4 @@ To try it out, simply clone the repository and run `bundle install` in terminal 
 
 1. [OMDB](https://omdbapi.com)
 2. Google Maps
+3. [getAddress()](https://getaddress.io/) - for postcode validity check

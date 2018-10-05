@@ -32,6 +32,8 @@ def get_postcode_from_api(user_postcode)
 
   url = "https://api.getAddress.io/find/#{user_postcode}?api-key=W7MxRjU3wU-ZRq1XgMY0rg15574"
 
+  # looks for error to be raised - rescue enables the programme to keep running
+  # then executes the continued code
     begin
       RestClient.get(url)
     rescue
