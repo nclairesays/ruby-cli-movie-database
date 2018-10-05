@@ -82,8 +82,9 @@ class User < ActiveRecord::Base
       pass = hash(PROMPT.mask(normal("Please Enter Your Password:"), required: true))
       if self.find_by(username: user.username, password: pass) && i < 3
         puts
-        puts "#{message("==== Welcome #{user.username.capitalize}! ====")}"
+        puts "#{message("==== Welcome Back, #{user.username.capitalize}! ====")}"
         puts
+        sleep(1.5)
         CLI.mainmenu(user)
         break
       elsif i == 2
