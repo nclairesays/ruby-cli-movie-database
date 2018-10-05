@@ -78,25 +78,38 @@ class Recommender < ActiveRecord::Base
     title_header
     movie = Movie.find_by(title: movie_title.downcase)
     text(movie)
-    input = PROMPT.yes?(normal('Would You Like To Keep This In Your Recommendations?'))
-    case input
-    when true
-      selection = PROMPT.yes?(normal("Would You Like To Favourite This?"))
-      case selection
-      when true
+    input = PROMPT.ask('Would You Like To Keep This In Your Recommendations? (Y/N)') do |q|
+      q.required true
+      q.validate(/\A[y|Y|n|N]\z{1}/, warning('Invalid Input'))
+    end
+    if input == 'Y' || input == 'y'
+      puts
+      selection = PROMPT.ask('Would You Like To Favourite This? (Y/N)') do |q|
+        q.required true
+        q.validate(/\A[y|Y|n|N]\z{1}/, warning('Invalid Input'))
+      end
+      if selection == 'Y' || input == 'y'
         if Favourite.exists?(user_id: user.id, movie_id: movie.id)
+          puts
           puts message("You Have Already Favourited This Movie")
-          PROMPT.keypress(normal("Please Press Space or Enter to Continue"),require: true, keys: [:space, :return])
+          puts
+          PROMPT.keypress(normal("Please Press Space to Continue..."),require: true, keys: [:space])
           refresh(user)
         else
           Favourite.create(user_id: user.id, movie_id: movie.id)
+          puts
+          puts message('New Favourite Successfully Added.')
+          sleep(1.5)
           refresh(user)
         end
-      when false
+      elsif selection == 'N' || 'n'
         refresh(user)
       end
-    when false
+    elsif input == 'N' || input == 'n'
       Recommendation.delete(Recommendation.find_by(user_id: user.id, movie_id: movie.id).id)
+      puts
+      puts message("This Movie Has Been Successfully Removed From Your Recommendations.")
+      sleep(1.5)
       refresh(user)
     end
   end
