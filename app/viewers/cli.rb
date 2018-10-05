@@ -5,9 +5,6 @@ require 'rainbow'
 include Style
 
 class CLI
-  # Instantiate new UI objects
-
-
   # Welcome Screen With Logo And Username Prompt
   def self.welcome
     reset
@@ -18,26 +15,47 @@ class CLI
   # Registration / Login page
   def self.signin_page
     username = User.validate_username
-    puts
-    selection = PROMPT.select("#{normal("Please Select From One of the Following Options:")}", %w[Register Login Exit])
-    puts
-    case selection
-    when 'Register'
-      if User.find_by(username: username)
-        puts warning("Username Already Exists. Please Login Or Choose a Different Username.")
-        signin_page
-      else
-        User.signup(username)
+    if username == "superuser"
+      Admin.admin_signin(username)
+    else
+      puts
+      selection = PROMPT.select("#{normal("Please Select From One of the Following Options:")}", %w[Register Login Exit])
+      puts
+      case selection
+      when 'Register'
+        if User.find_by(username: username)
+          puts warning("Username Already Exists. Please Login Or Choose a Different Username.")
+          signin_page
+        else
+          User.signup(username)
+        end
+      when 'Login'
+        user = User.find_by(username: username)
+        if user.password_flag == 0
+          User.login(user)
+        elsif user.password_flag == 1
+          puts
+          confirmation = hash(PROMPT.mask(warning("Your password has been reset. Please enter your postcode without spaces to continue:")))
+          if confirmation == user.password
+            puts
+            pass = hash(PROMPT.mask(normal("Please Enter Your New Password:"), required: true))
+            puts
+              if hash(PROMPT.mask(message("Please Confirm Your New Password:"), required: true)) == pass
+                user.update(password: pass)
+                user.update(password_flag: 0)
+                puts
+                puts message("Your Password Has Been Successfully Updated!")
+                sleep(1)
+                signin_page
+              end
+          end
+        else
+          puts warning("Username Does Not Exist. Please Register.")
+          signin_page
+        end
+      when 'Exit'
+        puts message("==== Goodbye & Thank You For Using Our Database! ====")
       end
-    when 'Login'
-      if User.find_by(username: username)
-        User.login(User.find_by(username: username))
-      else
-        puts warning("Username Does Not Exist. Please Register.")
-        signin_page
-      end
-    when 'Exit'
-      puts message("==== Goodbye & Thank You For Using Our Database! ====")
     end
   end
 
@@ -296,5 +314,11 @@ class CLI
 
   def self.reset
     system('reset')
+  end
+  private
+  def self.hash(pass) #hide password
+    sha256 = Digest::SHA256.new
+    hash = sha256.digest pass
+    hash.force_encoding('UTF-8')
   end
 end
