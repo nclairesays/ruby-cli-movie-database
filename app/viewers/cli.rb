@@ -37,6 +37,7 @@ class CLI
       end
     when 'Exit'
       puts message('==== Goodbye & Thank You For Using Our Database! ====')
+      puts
     end
   end
 
@@ -256,7 +257,7 @@ class CLI
     puts
     puts
     puts message('==== APIs Used ====')
-    puts normal("1. OMDB API\n2. Google Maps API")
+    puts normal("1. OMDB API\n2. Google Maps API\n3. getAddress() API")
     puts
     PROMPT.keypress('Press space to return to the Main Menu...', keys: [:space])
     mainmenu(user)

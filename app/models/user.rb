@@ -15,7 +15,9 @@ class User < ActiveRecord::Base
     if hash(PROMPT.mask("#{message("Please Enter Your Password Again:")}", required: true)) == pass
       puts
       postcode = validate_postcode
+      puts
       age = validate_age
+      puts
       gender = validate_gender
       user = User.create(username: username, password: pass, location: postcode, age: age, gender: gender)
       puts
@@ -23,7 +25,9 @@ class User < ActiveRecord::Base
       puts
       CLI.mainmenu(user)
     else
+      puts
       puts warning("The Passwords You Have Entered Did Not Match.")
+      puts
       CLI.signin_page
     end
   end
@@ -115,11 +119,12 @@ class User < ActiveRecord::Base
   end
 
   def self.validate_postcode
-    PROMPT.ask(normal("Please Input Your Postcode (Eg 'TW7 6DA'):")) do |postcode|
+    user_postcode = PROMPT.ask(normal("Please Input Your Postcode (Eg 'TW7 6DA'):")) do |postcode|
       postcode.required true
-      postcode.validate(/^[a-zA-Z0-9]{2,4}\s[a-zA-Z0-9]{2,4}$/, warning('Invalid Postcode'))
+      postcode.validate(/^[a-zA-Z0-9]{2,4}\s[a-zA-Z0-9]{2,4}$/, warning('Invalid Postcode Format.'))
       postcode.modify :remove, :down
     end
+    get_postcode_from_api(user_postcode)
   end
 
   def self.validate_age
