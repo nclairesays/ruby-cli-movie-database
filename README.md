@@ -19,6 +19,8 @@ To try it out, simply clone the repository and run `bundle install` in terminal 
 
 4. Account Management - When a user runs the application for the first time, they will be required to 'Register'. Registering requests information such as a username, password, their postcode, age and gender. The user then has the freedom to amend any information via the account management panel, with the additional freedom to delete their account entirely.
 
+5. Admin - Gives a single admin user full control over resetting and deleting User accounts. Can be accessed through username `superuser` in the login page and the default password is `admin`.
+
 ## APIs
 
 1. [OMDB](https://omdbapi.com)
