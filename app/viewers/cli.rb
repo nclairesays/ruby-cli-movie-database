@@ -219,9 +219,11 @@ class CLI
     puts
     puts normal(movie.plot.to_s)
     puts
-    input = PROMPT.yes?(normal('Would You Like To Keep This In Your Favourites?'))
-    case input
-    when true
+    input = PROMPT.ask('Would You Like To Keep This In Your Favourites? (Y/N)') do |q|
+      q.required true
+      q.validate(/\A[y|Y|n|N]\z{1}/, warning("Invalid Input"))
+    end
+    if input == "Y" || input == "y"
       if Favourite.exists?(user_id: user.id, movie_id: movie.id)
         puts message("You Have Already Favourited This Movie")
         PROMPT.keypress(normal("Please Press Space or Enter to Continue"),require: true, keys: [:space, :return])
@@ -233,7 +235,7 @@ class CLI
         sleep(1.5)
         reset
       end
-    when false
+    elsif input == "N" || input == "n"
       reset
     end
   end
