@@ -48,7 +48,7 @@ ActiveRecord::Schema.define(version: 20181005094242) do
     t.string  "location"
     t.integer "age"
     t.string  "gender"
-    t.        "password_flag"
+    t.integer "password_flag"
   end
 
 end

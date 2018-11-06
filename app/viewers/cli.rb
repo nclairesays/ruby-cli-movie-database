@@ -31,31 +31,35 @@ class CLI
         end
       when 'Login'
         user = User.find_by(username: username)
-        if user.password_flag == 0
-          User.login(user)
-        elsif user.password_flag == 1
-          puts
-          confirmation = hash(PROMPT.mask(warning("Your password has been reset. Please enter your postcode without spaces to continue:")))
-          if confirmation == user.password
-            puts
-            pass = hash(PROMPT.mask(normal("Please Enter Your New Password:"), required: true))
-            puts
-              if hash(PROMPT.mask(message("Please Confirm Your New Password:"), required: true)) == pass
-                user.update(password: pass)
-                user.update(password_flag: 0)
-                puts
-                puts message("Your Password Has Been Successfully Updated!")
-                sleep(1)
-                signin_page
-              end
-          end
-        else
+        if user == nil
           puts warning("Username Does Not Exist. Please Register.")
           signin_page
+        else
+          if user.password_flag == 0
+            User.login(user)
+          elsif user.password_flag == 1
+            puts
+            confirmation = hash(PROMPT.mask(warning("Your password has been reset. Please enter your postcode without spaces to continue:")))
+            if confirmation == user.password
+              puts
+              pass = hash(PROMPT.mask(normal("Please Enter Your New Password:"), required: true))
+              puts
+                if hash(PROMPT.mask(message("Please Confirm Your New Password:"), required: true)) == pass
+                  user.update(password: pass)
+                  user.update(password_flag: 0)
+                  puts
+                  puts message("Your Password Has Been Successfully Updated!")
+                  sleep(1)
+                  signin_page
+                end
+            end
+          end
         end
       when 'Exit'
         puts message("==== Goodbye & Thank You For Using Our Database! ====")
         puts
+        sleep(2.5)
+        welcome
       end
     end
   end
@@ -90,6 +94,8 @@ class CLI
     when 'Exit'
       puts message('==== Goodbye & Thank You For Using Our Database! ====')
       puts
+      sleep(2.5)
+      welcome
     end
   end
 
@@ -273,7 +279,7 @@ class CLI
     puts normal('Ryan is a young, software engineer in training. He has passion for technology and problem solving.')
     puts
     puts message('==== Sang Song ====')
-    puts normal('Sang is a young, software engineer in training. He has passion for technology and problem solving.')
+    puts normal(ssong_logo)
     puts
     puts
     puts message('==== APIs Used ====')
@@ -281,6 +287,52 @@ class CLI
     puts
     PROMPT.keypress('Press space to return to the Main Menu...', keys: [:space])
     mainmenu(user)
+  end
+
+  def self.ssong_logo
+    <<-SSONG
+    `;++++++++++++++++++++++++',
+:+++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++
+:+++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++`
+`+++++++++++++++++++++++++++++++++++++++
+;+++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++```````````````.,+++++
++++++++++++++++++#```````````````#++++++
++++++++++++++++++.`````````````+++++++++
+++++++++++++++++#````````````:++++++++++
+++++++++++++++++,``````````.#+++++++++++
++++++++++++++++#``````````#+++++++++++++
++++++++++++++++:````````++++++++++++++++
++++++++++++++++```````:+++++++++++++++++
+++++++++++++++;`````.#++++++++++++++++++
+++++++++++++++`````#++++++#.++++++++++++
+++++++++++++++```'+++++++:``++++++++++++
++++++++++++++``:+++++++'```+++++++++++++
++++++++++++++.#++++++#`````+++++++++++++
++++++++++++++++++++#.`````;+++++++++++++
+++++++++++++++++++:```````++++++++++++++
++++++++++++++++++````````:++++++++++++++
+++++++++++++++#``````````#++++++++++++++
+++++++++++++#.``````````,+++++++++++++++
++++++++++++;````````````#+++++++++++++++
+++++++++++`````````````.++++++++++++++++
++++++++#```````````````#++++++++++++++++
+++++++,.```````````````+++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++
+'+++++++++++++++++++++++++++++++++++++++
+,+++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++,
+++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++.
+++++++++++++++++++++++++++++++++++;
+++++++++++++++++++++++++++++++++.
+`++++++++++++++++++++++++++++,
+
+    SSONG
   end
 
   def self.find_by_location(user)

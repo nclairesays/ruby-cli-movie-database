@@ -19,7 +19,7 @@ class User < ActiveRecord::Base
       age = validate_age
       puts
       gender = validate_gender
-      user = User.create(username: username, password: pass, location: postcode, age: age, gender: gender)
+      user = User.create(username: username, password: pass, location: postcode, age: age, gender: gender, password_flag: 0)
       puts
       puts message("==== Thank You For Signing Up, #{user.username.capitalize}! ====")
       sleep(1.5)
@@ -125,7 +125,7 @@ class User < ActiveRecord::Base
       postcode.validate(/^[a-zA-Z0-9]{2,4}\s[a-zA-Z0-9]{2,4}$/, warning('Invalid Postcode Format.'))
       postcode.modify :remove, :down
     end
-    get_postcode_from_api(user_postcode)
+    # get_postcode_from_api(user_postcode)
   end
 
   def self.validate_age
@@ -203,7 +203,7 @@ class User < ActiveRecord::Base
   def self.postcode_change(user)
     puts normal("Your current postcode is: '#{user.location.upcase}'")
     puts
-    postcode = postcode_change_validation
+    postcode = validate_postcode
     user.update(location: postcode)
     puts
     puts message("Your Postcode Has Been Successfully Updated!")
