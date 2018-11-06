@@ -8,8 +8,8 @@ include Style
 ##### Saves the movie information to the database and
 ##### and returns the relevant movie object
 def get_movie_from_api(user_input)
-
-  url = "http://www.omdbapi.com/?apikey=5c74cb50&t=#{user_input}"
+  api_key = "YOUR API KEY HERE"
+  url = "http://www.omdbapi.com/?apikey=#{api_key}&t=#{user_input}"
 
   response_string = RestClient.get(url)
   response = JSON.parse(response_string)
